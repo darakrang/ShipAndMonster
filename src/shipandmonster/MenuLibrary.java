@@ -42,7 +42,7 @@ public class MenuLibrary
     private static String nameOne = "Cyril L...";
     private static String idOne = "??????????";
     private static String nameTwo = "Dara Krang";
-    private static String idTwo = "??????????";
+    private static String idTwo = "1000910872";
     private static String nameThree = "Hunter Reynolds";
     private static String idThree = "1000999648";
     public static final String commandAbout = String.format("Steam-powered Assassins\nCSE 1325-002\nApril 28, 2015\n\tName: %s\n\tID: %s", nameOne, idOne, nameTwo, idTwo, nameThree, idThree);
