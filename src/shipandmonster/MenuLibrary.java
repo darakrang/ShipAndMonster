@@ -45,7 +45,7 @@ public class MenuLibrary
     private static String idTwo = "1000910872";
     private static String nameThree = "Hunter Reynolds";
     private static String idThree = "1000999648";
-    public static final String commandAbout = String.format("Steam-powered Assassins\nCSE 1325-002\nApril 28, 2015\n\tName: %s\n\tID: %s", nameOne, idOne, nameTwo, idTwo, nameThree, idThree);
+    public static final String commandAbout = String.format("The Three Assassins\nCSE 1325-002\nApril 28, 2015\n\tName: %s\n\tID: %s", nameOne, idOne, nameTwo, idTwo, nameThree, idThree);
     
     //IMPORTANT: file paths should be changed and verified for the demonstration!!!
     public static final String iconPath = "C:\\Users\\Hunter\\Documents\\UTA Files\\Spring2015 (Freshman)\\CSE 1325 (Object-Oriented Programming)\\Semester Project\\Icons";
