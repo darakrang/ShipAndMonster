@@ -39,7 +39,7 @@ public class MenuLibrary
     public static final String commandSummonGodzilla = "Summon Godzilla";
     
     //about menu
-    private static String nameOne = "Cyril L...";
+    private static String nameOne = "Cyril Lutterodt";
     private static String idOne = "??????????";
     private static String nameTwo = "Dara Krang";
     private static String idTwo = "1000910872";
