@@ -4,7 +4,11 @@
  */
 package shipandmonster;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -17,15 +21,23 @@ import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 /**
  *
@@ -36,7 +48,7 @@ import javax.swing.JTextArea;
 // This class store all the functions that display all the menues in the program, 
 // update ship, cargo and dock information
 //
-public class Main implements ActionListener, MouseListener, MouseMotionListener {
+public class Main extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
 
     //This is the Class Space
     private Scanner systemInput;
@@ -46,44 +58,44 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
     private Map map;
     private Port port;
     private FileHandler fileHandler;
-    
+
     //here are the GUI components [Hunter]
     private JFrame frame;
     private JTextArea statusTerminal;
     private JButton button1, button2, button3, button4;
-    
+
     private JLabel labelMap[][];
     private final int ICON_SIZE = 20; //20x20 icons
-    
+
     private JLabel gridLabel;
-    
+
     private JMenuBar menuBar;
-    
+
     private JMenu menuFile;
     private JMenuItem mOpen;
     private JMenuItem mClose;
     private JMenuItem mSnapshot;
     private JMenuItem mExit;
-    
+
     private JMenu menuShip;
     private JMenuItem mGenerateShips;
     private JMenuItem mUpdateShips;
     private JMenuItem mDisplayShips;
     private JMenuItem mRemoveShips;
-    
+
     private JMenu menuPort;
     private JMenuItem mUnloadShip;
     private JMenuItem mUpdateDocks;
     private JMenuItem mDisplayDocks;
     private JMenuItem mDisplayCargos;
-    
+
     private JMenu menuSeaMonster;
     private JMenuItem mGenerateMonsters;
     private JMenuItem mUpdateMonsters;
     private JMenuItem mDisplayMonsters;
     private JMenuItem mRemoveMonsters;
     private JMenuItem mSummonGodzilla;
-    
+
     private JMenuItem mAbout;
 
     //Create the object
@@ -102,10 +114,10 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
         map.setPort(port);
 
         systemInput = new Scanner(System.in);
-        
+
         //initialize the GUI [Hunter]
         initializeGUI();
-        
+
     }
 
     /**
@@ -115,96 +127,117 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
         Main helper = new Main();
         //helper.MainMenu();
     }
-    
-    /**Handles the menu system actions
-     * 
+
+    /**
+     * Handles the menu system actions
+     *
      * @param e The event triggered by a menu item
      */
     @Override
-    public void actionPerformed(ActionEvent e)
-    {
-        
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        switch (command) {
+            case MenuLibrary.commandExit:
+                System.exit(0);
+                break;
+            case MenuLibrary.labelAbout:
+                JOptionPane.showMessageDialog(this, "Group 8:\n"
+                        + "Hunter\n"
+                        + "Cyril\n"
+                        + "Dara");
+                break;
+            case MenuLibrary.commandGenerateShips:
+                String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships",
+                        JOptionPane.INFORMATION_MESSAGE);
+                map.generateShip(Integer.parseInt(input));
+                break;
+            case MenuLibrary.commandUpdateShips:
+                UpdateShipListForm frm = new UpdateShipListForm();
+                frm.ShowDiaglog(map.getArrayListShip());
+                break;
+            case MenuLibrary.commandDisplayShips:
+                map.displayShips();
+                break;
+        }
     }
-    
+
     //Mouse Listener Methods
-    
-    /**Not used in this particular program
-     * 
-     * @param e 
+    /**
+     * Not used in this particular program
+     *
+     * @param e
      */
     @Override
-    public void mouseClicked(MouseEvent e)
-    {
+    public void mouseClicked(MouseEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**Records the current pixel location of the cursor
-     * (used for implementing drag & drop)
-     * 
-     * @param e 
+    /**
+     * Records the current pixel location of the cursor (used for implementing
+     * drag & drop)
+     *
+     * @param e
      */
     @Override
-    public void mousePressed(MouseEvent e)
-    {
+    public void mousePressed(MouseEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**Relocates the selected ship/monster/etc onto
-     * the nearest tile from where it was dragged to
-     * and dropped off at.
-     * 
-     * @param e 
+    /**
+     * Relocates the selected ship/monster/etc onto the nearest tile from where
+     * it was dragged to and dropped off at.
+     *
+     * @param e
      */
     @Override
-    public void mouseReleased(MouseEvent e)
-    {
+    public void mouseReleased(MouseEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**Changes the selected object if the left mouse button
-     * is not compressed (i.e. nothing is being dragged)
-     * 
-     * @param e 
+    /**
+     * Changes the selected object if the left mouse button is not compressed
+     * (i.e. nothing is being dragged)
+     *
+     * @param e
      */
     @Override
-    public void mouseEntered(MouseEvent e)
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    /**Not used in this particular program
-     * 
-     * @param e 
-     */
-    @Override
-    public void mouseExited(MouseEvent e)
-    {
+    public void mouseEntered(MouseEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**Updates and modifies the position of any
-     * object currently being dragged, based on the
-     * mouse's current position and it's initial position
-     * (when the left mouse button was first pressed down)
-     * 
-     * @param e 
+    /**
+     * Not used in this particular program
+     *
+     * @param e
      */
     @Override
-    public void mouseDragged(MouseEvent e)
-    {
+    public void mouseExited(MouseEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**Not used in this particular program
-     * 
-     * @param e 
+    /**
+     * Updates and modifies the position of any object currently being dragged,
+     * based on the mouse's current position and it's initial position (when the
+     * left mouse button was first pressed down)
+     *
+     * @param e
      */
     @Override
-    public void mouseMoved(MouseEvent e)
-    {
+    public void mouseDragged(MouseEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
+    /**
+     * Not used in this particular program
+     *
+     * @param e
+     */
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     // display main menu of the program
     public void MainMenu() {
         boolean flag = true;
@@ -292,7 +325,7 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
             System.out.printf("%d. %s\n", counter, dock.getName());
             counter++;
         }
-        
+
         counter = 1;
         System.out.println();
         System.out.println("Cargo at port report");
@@ -316,7 +349,7 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
                 labelMap[col][row].setIcon(symbolToIcon(map.getMapSymbol()[row][col]));
             }
         }
-        
+
         frame.repaint();
 
     }
@@ -337,7 +370,7 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
             answer = systemInput.nextInt();
             switch (answer) {
                 case 1:
-                    map.generateShip();
+//                    map.generateShip();
                     break;
                 case 2:
                     ShipPropertiesMenu();
@@ -511,8 +544,7 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
                     }
 
                 }
-            } 
-            else if (answer == 11) { // display the ship
+            } else if (answer == 11) { // display the ship
                 map.getArrayListShip().get(shipIndex).display();
             }
 
@@ -755,12 +787,11 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
         long randomValue = min + (long) (random.nextDouble() * (max - min));
         return randomValue;
     }
-    
-    public void initializeGUI()
-    {
+
+    public void initializeGUI() {
         //menu system set-up
         menuBar = new JMenuBar();
-        
+
         //file menu
         menuFile = new JMenu(MenuLibrary.labelFile);
         mOpen = new JMenuItem(MenuLibrary.commandOpen);
@@ -771,22 +802,26 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
         menuFile.add(mClose);
         menuFile.add(mSnapshot);
         menuFile.add(mExit);
-        
+
         menuBar.add(menuFile);
-        
+
         //ship menu
         menuShip = new JMenu(MenuLibrary.labelShip);
         mGenerateShips = new JMenuItem(MenuLibrary.commandGenerateShips);
+        mGenerateShips.addActionListener(this);
         mUpdateShips = new JMenuItem(MenuLibrary.commandUpdateShips);
+        mUpdateShips.addActionListener(this);
         mDisplayShips = new JMenuItem(MenuLibrary.commandDisplayShips);
+        mDisplayShips.addActionListener(this);
         mRemoveShips = new JMenuItem(MenuLibrary.commandRemoveShips);
+        mRemoveShips.addActionListener(this);
         menuShip.add(mGenerateShips);
         menuShip.add(mUpdateShips);
         menuShip.add(mDisplayShips);
         menuShip.add(mRemoveShips);
-        
+
         menuBar.add(menuShip);
-        
+
         //port menu
         menuPort = new JMenu(MenuLibrary.labelPort);
         mUnloadShip = new JMenuItem(MenuLibrary.commandUnloadShip);
@@ -797,9 +832,9 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
         menuPort.add(mUpdateDocks);
         menuPort.add(mDisplayDocks);
         menuPort.add(mDisplayCargos);
-        
+
         menuBar.add(menuPort);
-        
+
         //sea monster menu
         menuSeaMonster = new JMenu(MenuLibrary.labelSeaMonster);
         mGenerateMonsters = new JMenuItem(MenuLibrary.commandGenerateMonsters);
@@ -812,14 +847,15 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
         menuSeaMonster.add(mDisplayMonsters);
         menuSeaMonster.add(mRemoveMonsters);
         menuSeaMonster.add(mSummonGodzilla);
-        
+
         menuBar.add(menuSeaMonster);
-        
+
         //about menu[item]
         mAbout = new JMenuItem(MenuLibrary.labelAbout);
-        
+        mAbout.addActionListener(this);
+
         menuBar.add(mAbout);
-        
+
         //frame initialization
         frame = new JFrame("Monstrous Shipping Simulator");
         frame.setSize(1085, 920); //this calls for 20x20 icons  (map space = 1080x720 for a 54x36 grid)
@@ -827,41 +863,39 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setLayout(null);
         frame.setLocation(300, 75);
-        
+
         statusTerminal = new JTextArea("Status Terminal:\n");
         statusTerminal.setBounds(0, 720, 780, 150);
         statusTerminal.setEditable(false);
         statusTerminal.setOpaque(true);
         statusTerminal.setBorder(BorderFactory.createLineBorder(Color.black));
-        
+
         button1 = new JButton("Button 1");
         button1.setBounds(780, 720, 150, 75);
-        
+
         button2 = new JButton("Button 2");
         button2.setBounds(930, 720, 150, 75);
-        
+
         button3 = new JButton("Button 3");
         button3.setBounds(780, 795, 150, 75);
-        
+
         button4 = new JButton("Button 4");
         button4.setBounds(930, 795, 150, 75);
-        
+
         gridLabel = new JLabel();
         gridLabel.setBounds(0, 0, 1080, 720);
         gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
         //IMPORTANT: file paths should be changed and verified for the demonstration!!!
-        
+
         labelMap = new JLabel[54][36];
-        for(int c = 0; c < 54; c++)
-        {
-            for(int r = 0; r < 36; r++)
-            {
+        for (int c = 0; c < 54; c++) {
+            for (int r = 0; r < 36; r++) {
                 labelMap[c][r] = new JLabel();
-                labelMap[c][r].setBounds(c*ICON_SIZE, r*ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                labelMap[c][r].setBounds(c * ICON_SIZE, r * ICON_SIZE, ICON_SIZE, ICON_SIZE);
                 frame.add(labelMap[c][r]);
             }
         }
-        
+
         frame.setJMenuBar(menuBar);
         frame.add(gridLabel);
         frame.add(statusTerminal);
@@ -871,67 +905,39 @@ public class Main implements ActionListener, MouseListener, MouseMotionListener 
         frame.add(button4);
         frame.setVisible(true);
     }
-    
-    public ImageIcon symbolToIcon(char symbol)
-    {
-        if(symbol == '.')
-        {
+
+    public ImageIcon symbolToIcon(char symbol) {
+        if (symbol == '.') {
             return new ImageIcon(MenuLibrary.iconPath + "seamlessWater.jpg"); //check
-        }
-        else if(symbol == '*')
-        {
+        } else if (symbol == '*') {
             return new ImageIcon(MenuLibrary.iconPath + "seamlessShore.jpg"); //check
-        }
-        else if(symbol == 'D')
-        {
+        } else if (symbol == 'D') {
             return new ImageIcon(MenuLibrary.iconPath + "emptyDock.jpg"); //check
-        }
-        else if(symbol == 'C')
-        {
+        } else if (symbol == 'C') {
             return new ImageIcon(MenuLibrary.iconPath + "emptyCrane.jpg"); //needs to be edited and resized
-        }
-        else if(symbol == 'P')
-        {
+        } else if (symbol == 'P') {
             return new ImageIcon(MenuLibrary.iconPath + "emptyPier.jpg"); //need to get
-        }
-        else if(symbol == 'S')
-        {
+        } else if (symbol == 'S') {
             return new ImageIcon(MenuLibrary.iconPath + "cargoShip.jpg"); //need to get
-        }
-        else if(symbol == 'B')
-        {
+        } else if (symbol == 'B') {
             return new ImageIcon(MenuLibrary.iconPath + "containerShip.jpg"); //need to get
-        }
-        else if(symbol == 'T')
-        {
+        } else if (symbol == 'T') {
             return new ImageIcon(MenuLibrary.iconPath + "oilTanker.jpg"); //need to get
-        }
-        else if(symbol == '$')
-        {
+        } else if (symbol == '$') {
             return new ImageIcon(MenuLibrary.iconPath + "dockedShip.jpg"); //need to get
-        }
-        else if(symbol == 'X')
-        {
+        } else if (symbol == 'X') {
             return new ImageIcon(MenuLibrary.iconPath + "unsafeShip.jpg"); //need to get
-        }
-        else if(symbol == 'G')
-        {
+        } else if (symbol == 'G') {
             return new ImageIcon(MenuLibrary.iconPath + "godzilla.jpg"); //need to get
-        }
-        else if(symbol == 'K')
-        {
+        } else if (symbol == 'K') {
             return new ImageIcon(MenuLibrary.iconPath + "kraken.jpg"); //need to get
-        }
-        else if(symbol == 'L')
-        {
+        } else if (symbol == 'L') {
             return new ImageIcon(MenuLibrary.iconPath + "leviathan.jpg"); //need to get
-        }
-        else if(symbol == 's')
-        {
+        } else if (symbol == 's') {
             //CAREFUL! Lowercase 's' is the sea serpent, upper-case 'S' is a cargo ship
             return new ImageIcon(MenuLibrary.iconPath + "seaSerpent.jpg"); //need to get
         }
-        
+
         //to make the compiler happy, add in a guaranteed return statement
         return null;
     }
