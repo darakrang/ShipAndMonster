@@ -148,9 +148,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                         + "Dara");
                 break;
             case MenuLibrary.commandGenerateShips:
-                String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships",
-                        JOptionPane.INFORMATION_MESSAGE);
-                map.generateShip(Integer.parseInt(input));
+                //String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE);
+                map.generateShip();
                 break;
             case MenuLibrary.commandUpdateShips:
                 UpdateShipListForm frm = new UpdateShipListForm();
@@ -300,8 +299,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         int row = 0, col = 0, counter = 1;
         refreshMapData();
 
-        System.out.println("Ship report");
-        System.out.println("-----------------------------------");
+        //clear the terminal to make room for report
+        statusTerminal.setText("Status Terminal:\n");
+        statusTerminal.append("Display Report\n-----------------------------------\n");
         for (CargoShip ship : map.getArrayListShip()) {
             row = MapConverter.lat2row(ship.getLatitude());
             col = MapConverter.lon2col(ship.getLongitude());
@@ -858,33 +858,33 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
         //frame initialization
         frame = new JFrame("Monstrous Shipping Simulator");
-        frame.setSize(1085, 920); //this calls for 20x20 icons  (map space = 1080x720 for a 54x36 grid)
+        frame.setSize(815, 740); //this calls for 20x20 -> 15x15 icons  (map space = 1080x720 -> 810x540 for a 54x36 grid)
         frame.setResizable(false);
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setLayout(null);
         frame.setLocation(300, 75);
 
         statusTerminal = new JTextArea("Status Terminal:\n");
-        statusTerminal.setBounds(0, 720, 780, 150);
+        statusTerminal.setBounds(0, 540, 510, 150);
         statusTerminal.setEditable(false);
         statusTerminal.setOpaque(true);
         statusTerminal.setBorder(BorderFactory.createLineBorder(Color.black));
 
         button1 = new JButton("Button 1");
-        button1.setBounds(780, 720, 150, 75);
+        button1.setBounds(510, 540, 150, 75);
 
         button2 = new JButton("Button 2");
-        button2.setBounds(930, 720, 150, 75);
+        button2.setBounds(660, 540, 150, 75);
 
         button3 = new JButton("Button 3");
-        button3.setBounds(780, 795, 150, 75);
+        button3.setBounds(510, 615, 150, 75);
 
         button4 = new JButton("Button 4");
-        button4.setBounds(930, 795, 150, 75);
+        button4.setBounds(660, 615, 150, 75);
 
-        gridLabel = new JLabel();
-        gridLabel.setBounds(0, 0, 1080, 720);
-        gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
+        //gridLabel = new JLabel();
+        //gridLabel.setBounds(0, 0, 810, 540);
+        //gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
         //IMPORTANT: file paths should be changed and verified for the demonstration!!!
 
         labelMap = new JLabel[54][36];
@@ -897,7 +897,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         }
 
         frame.setJMenuBar(menuBar);
-        frame.add(gridLabel);
+        //frame.add(gridLabel);
         frame.add(statusTerminal);
         frame.add(button1);
         frame.add(button2);
