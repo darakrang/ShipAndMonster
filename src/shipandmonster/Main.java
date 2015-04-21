@@ -5,20 +5,23 @@
 package shipandmonster;
 
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
@@ -52,15 +55,14 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private FileHandler fileHandler;
 
     //here are the GUI components [Hunter]
-    private JFrame frame;
     private JLabel stLabel;
     private JTextArea statusTerminal;
     private JPanel stPanel;
     private JScrollPane stScrollPane;
     private JButton button1, button2, button3, button4;
 
-    private JLabel labelMap[][];
-    private final int ICON_SIZE = 20; //20x20 icons
+    private BufferedImage[][] bufferMap;
+    private final int ICON_SIZE = 15; //15x15 icons
 
     //private JLabel gridLabel;
 
@@ -99,6 +101,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
     //Create the object
     public Main() {
+        //start initializing the GUI
+        super("Monstrous Shipping Simulator");
+        
         //This is the Constructor
         shipProperty = new CargoShip();
         cargoProperty = new Cargo();
@@ -124,7 +129,6 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     public static void main(String[] args) {
         Main helper = new Main();
-        //helper.MainMenu();
     }
 
     /**
@@ -141,7 +145,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 System.exit(0);
                 break;
             case MenuLibrary.labelAbout:
-                JOptionPane.showMessageDialog(frame, MenuLibrary.commandAbout);
+                JOptionPane.showMessageDialog(this, MenuLibrary.commandAbout);
                 break;
             case MenuLibrary.commandGenerateShips:
                 String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE);
@@ -173,7 +177,18 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 displayCargosInForm();
                 port.displayCargoList();
                 break;
+            //JButtons
+            case MenuLibrary.commandStart:
+                break;
+            case MenuLibrary.commandStop:
+                break;
+            case MenuLibrary.commandDestroy:
+                break;
+            case MenuLibrary.command3D:
+                break;
         }
+        
+        this.repaint();
     }
 
     public void getArrayListUnloadShipsAndDock(ArrayList<Dock> arrayListDock, ArrayList<CargoShip> arrayListShip) {
@@ -244,7 +259,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mouseClicked(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     /**
@@ -255,7 +270,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mousePressed(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.repaint();
     }
 
     /**
@@ -266,7 +281,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     /**
@@ -298,8 +313,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      * @param e
      */
     @Override
-    public void mouseDragged(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void mouseDragged(MouseEvent e)
+    {
+        
     }
 
     /**
@@ -410,17 +426,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
     //show Map
     public void showMap() throws FileNotFoundException {
-        // combine ship, dock and map data
-        refreshMapData();
-
-        //print map
-        for (int row = 0; row < 36; row++) {
-            for (int col = 0; col < 54; col++) {
-                labelMap[col][row].setIcon(symbolToIcon(map.getMapSymbol()[row][col]));
-            }
-        }
-
-        frame.repaint();
+        
+        this.repaint();
 
     }
 
@@ -822,6 +829,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 }
             }
         }
+        
+        //update images
+        for (row = 0; row < 36; row++) {
+            for (col = 0; col < 54; col++) {
+                bufferMap[col][row] = symbolToIcon(map.getMapSymbol()[row][col]);
+            }
+        }
     }
 
     private boolean isRightTypeToUnload(CargoShip ship, Dock dock) {
@@ -864,9 +878,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         //file menu
         menuFile = new JMenu(MenuLibrary.labelFile);
         mOpen = new JMenuItem(MenuLibrary.commandOpen);
+        mOpen.addActionListener(this);
         mClose = new JMenuItem(MenuLibrary.commandClose);
+        mClose.addActionListener(this);
         mSnapshot = new JMenuItem(MenuLibrary.commandSnapshot);
+        mSnapshot.addActionListener(this);
         mExit = new JMenuItem(MenuLibrary.commandExit);
+        mExit.addActionListener(this);
         menuFile.add(mOpen);
         menuFile.add(mClose);
         menuFile.add(mSnapshot);
@@ -911,10 +929,15 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         //sea monster menu
         menuSeaMonster = new JMenu(MenuLibrary.labelSeaMonster);
         mGenerateMonsters = new JMenuItem(MenuLibrary.commandGenerateMonsters);
+        mGenerateMonsters.addActionListener(this);
         mUpdateMonsters = new JMenuItem(MenuLibrary.commandUpdateMonsters);
+        mUpdateMonsters.addActionListener(this);
         mDisplayMonsters = new JMenuItem(MenuLibrary.commandDisplayMonsters);
+        mDisplayMonsters.addActionListener(this);
         mRemoveMonsters = new JMenuItem(MenuLibrary.commandRemoveMonsters);
+        mRemoveMonsters.addActionListener(this);
         mSummonGodzilla = new JMenuItem(MenuLibrary.commandSummonGodzilla);
+        mSummonGodzilla.addActionListener(this);
         menuSeaMonster.add(mGenerateMonsters);
         menuSeaMonster.add(mUpdateMonsters);
         menuSeaMonster.add(mDisplayMonsters);
@@ -930,12 +953,11 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         menuBar.add(mAbout);
 
         //frame initialization
-        frame = new JFrame("Monstrous Shipping Simulator");
-        frame.setSize(815, 740); //this calls for 20x20 -> 15x15 icons  (map space = 1080x720 -> 810x540 for a 54x36 grid)
-        frame.setResizable(false);
-        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        frame.setLayout(null);
-        frame.setLocation(300, 75);
+        this.setSize(815, 740); //this calls for 20x20 -> 15x15 icons  (map space = 1080x720 -> 810x540 for a 54x36 grid)
+        this.setResizable(false);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setLayout(null);
+        this.setLocation(300, 75);
 
         stLabel = new JLabel("Status Terminal", JLabel.CENTER);
         stLabel.setBounds(0, 540, 510, 15);
@@ -944,86 +966,110 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         stLabel.setOpaque(true);
         
         statusTerminal = new JTextArea("");
-        statusTerminal.setBounds(0, 0, 510, 140);
+        statusTerminal.setBounds(0, 0, 512, 140);
         statusTerminal.setEditable(false);
         statusTerminal.setOpaque(true);
         statusTerminal.setBorder(BorderFactory.createLineBorder(Color.black));
         
         stScrollPane = new JScrollPane(statusTerminal);
-        stScrollPane.setBounds(0, 555, 510, 140);
+        stScrollPane.setBounds(0, 555, 512, 140);
 
-        button1 = new JButton("Button 1");
+        button1 = new JButton(MenuLibrary.commandStart);
         button1.setBounds(510, 540, 150, 75);
 
-        button2 = new JButton("Button 2");
+        button2 = new JButton(MenuLibrary.commandStop);
         button2.setBounds(660, 540, 150, 75);
 
-        button3 = new JButton("Button 3");
+        button3 = new JButton(MenuLibrary.commandDestroy);
         button3.setBounds(510, 615, 150, 75);
 
-        button4 = new JButton("Button 4");
+        button4 = new JButton(MenuLibrary.command3D);
         button4.setBounds(660, 615, 150, 75);
-
+        
         //gridLabel = new JLabel();
         //gridLabel.setBounds(0, 0, 810, 540);
         //gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
         //IMPORTANT: file paths should be changed and verified for the demonstration!!!
-        labelMap = new JLabel[54][36];
-        for (int c = 0; c < 54; c++) {
-            for (int r = 0; r < 36; r++) {
-                labelMap[c][r] = new JLabel();
-                labelMap[c][r].setBounds(c * ICON_SIZE, r * ICON_SIZE, ICON_SIZE, ICON_SIZE);
-                frame.add(labelMap[c][r]);
-            }
-        }
+        bufferMap = new BufferedImage[54][36];
 
-        frame.setJMenuBar(menuBar);
+        this.setJMenuBar(menuBar);
         //frame.add(gridLabel);
 
 //        JScrollPane spStatusTerminal = new JScrollPane(statusTerminal);
 
-        frame.add(stLabel);
-        frame.add(stScrollPane);
-        frame.add(button1);
-        frame.add(button2);
-        frame.add(button3);
-        frame.add(button4);
-        frame.setVisible(true);
+        this.add(stLabel);
+        this.add(stScrollPane);
+        this.add(button1);
+        this.add(button2);
+        this.add(button3);
+        this.add(button4);
+        this.setVisible(true);
     }
 
-    public ImageIcon symbolToIcon(char symbol) {
-        if (symbol == '.') {
-            return new ImageIcon(MenuLibrary.iconPath + "seamlessWater.jpg"); //need to get
-        } else if (symbol == '*') {
-            return new ImageIcon(MenuLibrary.iconPath + "seamlessShore.jpg"); //need to get
-        } else if (symbol == 'D') {
-            return new ImageIcon(MenuLibrary.iconPath + "emptyDock.jpg"); //need to get
-        } else if (symbol == 'C') {
-            return new ImageIcon(MenuLibrary.iconPath + "emptyCrane.jpg"); //need to get
-        } else if (symbol == 'P') {
-            return new ImageIcon(MenuLibrary.iconPath + "emptyPier.jpg"); //need to get
-        } else if (symbol == 'S') {
-            return new ImageIcon(MenuLibrary.iconPath + "cargoShip.jpg"); //need to get
-        } else if (symbol == 'B') {
-            return new ImageIcon(MenuLibrary.iconPath + "containerShip.jpg"); //need to get
-        } else if (symbol == 'T') {
-            return new ImageIcon(MenuLibrary.iconPath + "oilTanker.jpg"); //need to get
-        } else if (symbol == '$') {
-            return new ImageIcon(MenuLibrary.iconPath + "dockedShip.jpg"); //need to get
-        } else if (symbol == 'X') {
-            return new ImageIcon(MenuLibrary.iconPath + "unsafeShip.jpg"); //need to get
-        } else if (symbol == 'G') {
-            return new ImageIcon(MenuLibrary.iconPath + "godzilla.jpg"); //need to get
-        } else if (symbol == 'K') {
-            return new ImageIcon(MenuLibrary.iconPath + "kraken.jpg"); //need to get
-        } else if (symbol == 'L') {
-            return new ImageIcon(MenuLibrary.iconPath + "leviathan.jpg"); //need to get
-        } else if (symbol == 's') {
-            //CAREFUL! Lowercase 's' is the sea serpent, upper-case 'S' is a cargo ship
-            return new ImageIcon(MenuLibrary.iconPath + "seaSerpent.jpg"); //need to get
+    public BufferedImage symbolToIcon(char symbol) {
+        try
+        {
+            if (symbol == '.') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "seamlessWater.jpg"));
+            } else if (symbol == '*') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "seamlessShore.jpg"));
+            } else if (symbol == 'D') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "emptyDock.jpg"));
+            } else if (symbol == 'C') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "emptyCrane.jpg"));
+            } else if (symbol == 'P') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "emptyPier.jpg"));
+            } else if (symbol == 'S') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "cargoShip.jpg"));
+            } else if (symbol == 'B') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "containerShip.jpg"));
+            } else if (symbol == 'T') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "oilTanker.jpg"));
+            } else if (symbol == '$') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "dockedShip.jpg"));
+            } else if (symbol == 'X') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "unsafeShip.jpg"));
+            } else if (symbol == 'G') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "godzilla.jpg"));
+            } else if (symbol == 'K') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "kraken.jpg"));
+            } else if (symbol == 'L') {
+                return  ImageIO.read(new File(MenuLibrary.iconPath + "leviathan.jpg"));
+            } else if (symbol == 's') {
+                //CAREFUL! Lowercase 's' is the sea serpent, upper-case 'S' is a cargo ship
+                return ImageIO.read(new File(MenuLibrary.iconPath + "seaSerpent.jpg"));
+            }
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
         }
 
         //to make the compiler happy, add in a guaranteed return statement
         return null;
+    }
+    
+    @Override
+    public void paint(Graphics g)
+    {
+        super.paint(g);
+        
+        //combine ship, dock, and map data
+        //and update images
+        try
+        {
+            refreshMapData();
+        }
+        catch(FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        
+        //print map
+        for (int row = 0; row < 36; row++) {
+            for (int col = 0; col < 54; col++) {
+                g.drawImage(bufferMap[col][row], ICON_SIZE*col + 2, ICON_SIZE*row + 49, this);
+            }
+        }
     }
 }

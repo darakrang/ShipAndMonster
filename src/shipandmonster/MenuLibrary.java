@@ -48,6 +48,12 @@ public class MenuLibrary
     public static final String commandAbout = String.format("Group 8\nCSE 1325-002\nApril 28, 2015\n\nName: %s\nID: %s\n\nName: %s\nID: %s\n\nName: %s\nID: %s", nameOne, idOne, nameTwo, idTwo, nameThree, idThree);
     //Genii = plural of Genius
     
+    //buttons
+    public static final String commandStart = "Begin Hunting";
+    public static final String commandStop = "Stop Hunting";
+    public static final String commandDestroy = "Detonate Planet";
+    public static final String command3D = "Launch 3D";
+    
     //IMPORTANT: file paths should be changed and verified for the demonstration!!!
-    public static final String iconPath = "\\images";
+    public static final String iconPath = "E:\\Program Files\\NetBeansProjects\\ShipAndMonster\\images\\";
 }
