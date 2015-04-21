@@ -100,6 +100,10 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private JMenuItem mSummonGodzilla;
 
     private JMenuItem mAbout;
+    
+    private ArrayList<CargoShip> arrayListUnloadShip = new ArrayList<CargoShip>();
+    private ArrayList<Dock> arrayListUnloadDock = new ArrayList<Dock>();
+    private Port unloadPort = new Port();
 
     //Create the object
     public Main() {
@@ -148,38 +152,93 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 JOptionPane.showMessageDialog(frame, MenuLibrary.commandAbout);
                 break;
             case MenuLibrary.commandGenerateShips:
-
                 String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE);
                 map.generateShip(Integer.valueOf(input));
                 break;
             case MenuLibrary.commandUpdateShips:
                 UpdateShipListForm frmShip = new UpdateShipListForm();
                 frmShip.ShowDialog(map.getArrayListShip());
-//                frmShip.ShowDiaglog(map.getArrayListShip());
                 break;
             case MenuLibrary.commandDisplayShips:
                 displayShipsInForm();
+                System.out.println(map.displayShips());
                 break;
             case MenuLibrary.commandUnloadShip:
                 UnloadShipForm frmUnload = new UnloadShipForm();
-                frmUnload.ShowDiaglog(port, map.getArrayListShip());
-
+                getArrayListUnloadShipsAndDock(arrayListUnloadDock, arrayListUnloadShip);                
+                frmUnload.ShowDiaglog(arrayListUnloadDock,arrayListUnloadShip,port.getArrayListCargo());
                 statusTerminal.append(map.displayShips());
-
+                break;
+            case MenuLibrary.commandUpdateDock:
+                UpdateDockListForm frmDock = new UpdateDockListForm();
+                frmDock.ShowDialog(port.getArrayListDock());
+                break;
+            case MenuLibrary.commandDisplayDocks:
+                displayDocksInForm();
+                port.displayDocks();
+                break;
+            case MenuLibrary.commandDisplayCargos:
+                displayCargosInForm();
+                port.displayCargoList();
                 break;
         }
     }
 
+    public void getArrayListUnloadShipsAndDock(ArrayList<Dock> arrayListDock, ArrayList<CargoShip> arrayListShip) {
+        int index = 0, startIndex = 0;
+        CargoShip unloadShip;
+        
+        for (Dock dock : port.getArrayListDock()) {
+            if (dock.getSymbol() == '$') {
+                continue;
+            }
+            for (index = startIndex; index < map.getArrayListShip().size(); index++) {
+                unloadShip = map.getArrayListShip().get(index);
+                if (unloadShip.getCargo() != null
+                        && unloadShip.getLatitude() == dock.getLatitude()
+                        && unloadShip.getLongitude() == dock.getLongitude()
+                        && !arrayListUnloadShip.contains(unloadShip)) {
+                    arrayListDock.add(dock);
+                    arrayListShip.add(unloadShip);
+
+                    startIndex = index + 1;
+                    break;
+                }
+            }
+        }
+    }
+    
     public void displayShipsInForm() {
-        if (map.getArrayListShip().isEmpty()) {
-//            System.out.println("There is no ship left in the map.");
-            
+        if (map.getArrayListShip().isEmpty()) {            
             statusTerminal.append("There is no ship left in the map.\n");
         } else {
             for (CargoShip ship : map.getArrayListShip()) {
-//                System.out.println("------------------------------------------------");
-                statusTerminal.append("------------------------------------------------\n");
                 statusTerminal.append(ship.displayShip());
+            }
+            System.out.println();
+            System.out.println();
+        }
+    }
+    
+    public void displayDocksInForm() {
+        if (port.getArrayListDock().isEmpty()) {            
+            statusTerminal.append("There is no dock left in the port.\n");
+        } else {
+            for (Dock dock : port.getArrayListDock()) {
+//                statusTerminal.append("------------------------------------------------\n");
+                statusTerminal.append(dock.displayDock());
+            }
+            System.out.println();
+        }
+    }
+    
+    public void displayCargosInForm() {
+        if (port.getArrayListCargo().isEmpty()) {            
+            statusTerminal.append("There is no cargo left in the port.\n");
+        } else {
+            for (Cargo cargo : port.getArrayListCargo()) {
+//                statusTerminal.append("------------------------------------------------\n");
+                statusTerminal.append(cargo.display());
             }
             System.out.println();
         }

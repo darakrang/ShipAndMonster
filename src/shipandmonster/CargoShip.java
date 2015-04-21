@@ -113,11 +113,11 @@ public class CargoShip {
         report += String.format("Capacity: %.0f tons\n", this.getCargoCapacity());
         report +=("Location (" + this.getLongitude() + "," + this.getLatitude() + ")"+"\n");
         report += String.format("Location (%d,%d)\n", MapConverter.lon2col(this.getLongitude()), MapConverter.lat2row(this.getLatitude()));
-//        if (this.getCargo() != null) {
-//            this.getCargo().display();
-//        } else {
-//            report +=("The cargo is already unloaded"+"\n");
-//        }
+        if (this.getCargo() != null) {
+            report += this.getCargo().display();
+        } else {
+            report +=("The cargo is already unloaded"+"\n");
+        }
         return report;
     }
 

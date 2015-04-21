@@ -82,7 +82,18 @@ public class Dock {
         System.out.println("Location (" + this.getLongitude() + "," + this.getLatitude() + ")");
         System.out.printf("Location (%d,%d)\n", MapConverter.lon2col(this.getLongitude()), MapConverter.lat2row(this.getLatitude()));
     }
-
+    
+    public String displayDock() {
+        String report = new String();
+        report +=(this.getName()+"\n");
+        report +=("Dock section: " + this.getSection()+"\n");
+        report +=("Dock Number: " + this.getNumber()+"\n");
+        report += String.format("Size: %.0f*%.0f*%.0f metres\n", this.getDepth(), this.getLength(), this.getWidth());
+        report +=("Location (" + this.getLongitude() + "," + this.getLatitude() + ")"+"\n");
+        report += String.format("Location (%d,%d)\n\n", MapConverter.lon2col(this.getLongitude()), MapConverter.lat2row(this.getLatitude()));
+        return report;
+    }
+    
     // update Dock Property
     public void updateDockProperty(int property) {
         int inputInt;
