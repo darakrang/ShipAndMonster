@@ -50,8 +50,8 @@ public class Cargo{
     }
     
     //print out the current information about the cargo
-    public void display() {
-        System.out.format("%.2f of tons of %s\n", this.getTonnage(), this.getDescription());
+    public String display() {
+        return String.format("%.2f of tons of %s\n", this.getTonnage(), this.getDescription());
     }
 
     //update cargo properties

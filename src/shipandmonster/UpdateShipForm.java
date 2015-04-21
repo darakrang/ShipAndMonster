@@ -178,11 +178,11 @@ public class UpdateShipForm extends JDialog implements ActionListener {
             shipData.setLongitude(Double.valueOf(this.txtLongitude.getText()));
             shipData.setLatitude(Double.valueOf(this.txtLatitude.getText()));
             UpdateShipListForm frm = new UpdateShipListForm();
-            frm.ShowDiaglog(this.arrayListShip);
+            frm.ShowDialog(this.arrayListShip);
             this.dispose();
         } else if (e.getActionCommand() == commandCancel) {
             UpdateShipListForm frm = new UpdateShipListForm();
-            frm.ShowDiaglog(this.arrayListShip);
+            frm.ShowDialog(this.arrayListShip);
             this.dispose();
         } else if (e.getActionCommand() == "Load Cargo") {
             UpdateCargoForm frm = new UpdateCargoForm();

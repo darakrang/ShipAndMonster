@@ -62,13 +62,15 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
     //here are the GUI components [Hunter]
     private JFrame frame;
+    private JLabel stLabel;
     private JTextArea statusTerminal;
+    private JScrollPane stScrollPane;
     private JButton button1, button2, button3, button4;
 
     private JLabel labelMap[][];
     private final int ICON_SIZE = 20; //20x20 icons
 
-    private JLabel gridLabel;
+    //private JLabel gridLabel;
 
     private JMenuBar menuBar;
 
@@ -143,18 +145,17 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 System.exit(0);
                 break;
             case MenuLibrary.labelAbout:
-                JOptionPane.showMessageDialog(this, "Group 8:\n"
-                        + "Hunter\n"
-                        + "Cyril\n"
-                        + "Dara");
+                JOptionPane.showMessageDialog(frame, MenuLibrary.commandAbout);
                 break;
             case MenuLibrary.commandGenerateShips:
+
                 String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE);
                 map.generateShip(Integer.valueOf(input));
                 break;
             case MenuLibrary.commandUpdateShips:
                 UpdateShipListForm frmShip = new UpdateShipListForm();
-                frmShip.ShowDiaglog(map.getArrayListShip());
+                frmShip.ShowDialog(map.getArrayListShip());
+//                frmShip.ShowDiaglog(map.getArrayListShip());
                 break;
             case MenuLibrary.commandDisplayShips:
                 displayShipsInForm();
@@ -162,6 +163,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             case MenuLibrary.commandUnloadShip:
                 UnloadShipForm frmUnload = new UnloadShipForm();
                 frmUnload.ShowDiaglog(port, map.getArrayListShip());
+
+                statusTerminal.append(map.displayShips());
+
                 break;
         }
     }
@@ -320,39 +324,34 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         refreshMapData();
 
         //clear the terminal to make room for report
-        statusTerminal.setText("Status Terminal:\n");
         statusTerminal.append("Display Report\n-----------------------------------\n");
         for (CargoShip ship : map.getArrayListShip()) {
             row = MapConverter.lat2row(ship.getLatitude());
             col = MapConverter.lon2col(ship.getLongitude());
             if (map.getMapSymbol()[row][col] == 'X') {
-                System.out.printf("%d. %s: ", counter, ship.getName());
-                System.out.println("unsafe");
+                statusTerminal.append(String.format("%d. %s: ", counter, ship.getName()));
+                statusTerminal.append("unsafe\n");
             } else if (map.getMapSymbol()[row][col] == '$') {
-                System.out.printf("%d. %s: ", counter, ship.getName());
-                System.out.println("safe at dock");
+                statusTerminal.append(String.format("%d. %s: ", counter, ship.getName()));
+                statusTerminal.append("safe at dock\n");
             } else {
-                System.out.printf("%d. %s: ", counter, ship.getName());
-                System.out.println("safe at sea");
+                statusTerminal.append(String.format("%d. %s: ", counter, ship.getName()));
+                statusTerminal.append("safe at sea");
             }
             counter++;
         }
         counter = 1;
-        System.out.println();
-        System.out.println("Dock report");
-        System.out.println("-----------------------------------");
+        statusTerminal.append("\nDock report\n-----------------------------------\n");
         for (Dock dock : port.getArrayListDock()) {
-            System.out.printf("%d. %s\n", counter, dock.getName());
+            statusTerminal.append(String.format("%d. %s\n", counter, dock.getName()));
             counter++;
         }
 
         counter = 1;
-        System.out.println();
-        System.out.println("Cargo at port report");
-        System.out.println("-----------------------------------");
+        statusTerminal.append("\nCargo at port report\n-----------------------------------\n");
         for (Cargo cargo : port.getArrayListCargo()) {
-            System.out.printf("%d. ", counter);
-            cargo.display();
+            statusTerminal.append(String.format("%d. ", counter));
+            statusTerminal.append(cargo.display());
             counter++;
         }
         System.out.println();
@@ -887,11 +886,19 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         frame.setLayout(null);
         frame.setLocation(300, 75);
 
-        statusTerminal = new JTextArea("Status Terminal:\n");
-        statusTerminal.setBounds(0, 540, 510, 150);
+        stLabel = new JLabel("Status Terminal", JLabel.CENTER);
+        stLabel.setBounds(0, 540, 510, 15);
+        stLabel.setBackground(Color.white);
+        stLabel.setBorder(BorderFactory.createLineBorder(Color.black));
+        stLabel.setOpaque(true);
+        
+        statusTerminal = new JTextArea();
+        statusTerminal.setBounds(0, 550, 510, 140);
         statusTerminal.setEditable(false);
         statusTerminal.setOpaque(true);
         statusTerminal.setBorder(BorderFactory.createLineBorder(Color.black));
+        
+        stScrollPane = new JScrollPane(statusTerminal);
 
         button1 = new JButton("Button 1");
         button1.setBounds(510, 540, 150, 75);
@@ -920,9 +927,16 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
         frame.setJMenuBar(menuBar);
         //frame.add(gridLabel);
+
 //        JScrollPane spStatusTerminal = new JScrollPane(statusTerminal);
+
+        frame.add(stLabel);
+
         frame.add(statusTerminal);
-        
+
+
+        frame.add(stScrollPane);
+
         frame.add(button1);
         frame.add(button2);
         frame.add(button3);
@@ -932,13 +946,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
     public ImageIcon symbolToIcon(char symbol) {
         if (symbol == '.') {
-            return new ImageIcon(MenuLibrary.iconPath + "seamlessWater.jpg"); //check
+            return new ImageIcon(MenuLibrary.iconPath + "seamlessWater.jpg"); //need to get
         } else if (symbol == '*') {
-            return new ImageIcon(MenuLibrary.iconPath + "seamlessShore.jpg"); //check
+            return new ImageIcon(MenuLibrary.iconPath + "seamlessShore.jpg"); //need to get
         } else if (symbol == 'D') {
-            return new ImageIcon(MenuLibrary.iconPath + "emptyDock.jpg"); //check
+            return new ImageIcon(MenuLibrary.iconPath + "emptyDock.jpg"); //need to get
         } else if (symbol == 'C') {
-            return new ImageIcon(MenuLibrary.iconPath + "emptyCrane.jpg"); //needs to be edited and resized
+            return new ImageIcon(MenuLibrary.iconPath + "emptyCrane.jpg"); //need to get
         } else if (symbol == 'P') {
             return new ImageIcon(MenuLibrary.iconPath + "emptyPier.jpg"); //need to get
         } else if (symbol == 'S') {

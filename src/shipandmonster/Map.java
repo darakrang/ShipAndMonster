@@ -151,16 +151,18 @@ public class Map {
     }
 
     //display all Ship data
-    public void displayShips() {
+    public String displayShips() {
+        String result = "";
         if (arrayListShip.isEmpty()) {
-            System.out.println("There is no ship left in the map.");
+            result += "There is no ship left in the map.\n";
         } else {
             for (CargoShip ship : getArrayListShip()) {
-                System.out.println("------------------------------------------------");
-                ship.display();
+                result += "------------------------------------------------\n";
+                result += ship.display();
             }
-            System.out.println();
+            result += "\n";
         }
+        return result;
     }
 
     

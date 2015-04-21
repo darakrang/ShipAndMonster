@@ -67,7 +67,7 @@ public class UpdateShipListForm extends JDialog implements ActionListener,ListSe
         makeDialog();
     }
     
-    public void ShowDiaglog(ArrayList<CargoShip> shipList) {
+    public void ShowDialog(ArrayList<CargoShip> shipList) {
         arrayListShip = shipList;
         
         loadList(shipList);

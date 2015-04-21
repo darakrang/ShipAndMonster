@@ -52,7 +52,7 @@ public class Box extends Cargo{
     
     //print out the current information about the cargo
     @Override
-    public void display() {
-        System.out.format("%d teus of %s\n", this.getTeus(), this.getDescription());
+    public String display() {
+        return String.format("%d teus of %s\n", this.getTeus(), this.getDescription());
     }
 }
