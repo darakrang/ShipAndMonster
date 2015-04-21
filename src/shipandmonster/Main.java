@@ -146,15 +146,15 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 JOptionPane.showMessageDialog(this, MenuLibrary.commandAbout);
                 break;
             case MenuLibrary.commandGenerateShips:
-                int input = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE));
+                int input = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE));
                 map.generateShip(input);
                 break;
             case MenuLibrary.commandUpdateShips:
                 UpdateShipListForm frm = new UpdateShipListForm();
-                frm.ShowDiaglog(map.getArrayListShip());
+                frm.ShowDialog(map.getArrayListShip());
                 break;
             case MenuLibrary.commandDisplayShips:
-                map.displayShips();
+                statusTerminal.append(map.displayShips());
                 break;
         }
     }

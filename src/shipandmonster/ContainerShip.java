@@ -49,21 +49,23 @@ public class ContainerShip extends CargoShip{
     }
 
     // display ship information
-    public void display() {
-        System.out.println("Container Ship: " + this.name);
-        System.out.println("Country of Origin: " + this.country);
-        System.out.println("Transponder: " + this.transponder);
-        System.out.format("Length: %.0f metres\n", this.length);
-        System.out.format("Beam: %.0f metres\n", this.beam);
-        System.out.format("Draft: %.0f metres\n", this.draft);
-        System.out.format("Capacity: %.0f tons\n", this.capacity);
-        System.out.println("Location (" + this.longitude + "," + this.latitude + ")");
-        System.out.printf("Location (%d,%d)\n", MapConverter.lon2col(this.getLongitude()), MapConverter.lat2row(this.getLatitude()));
+    public String display() {
+        String result = "";
+        result += "Container Ship: " + this.name;
+        result += "\nCountry of Origin: " + this.country;
+        result += "\nTransponder: " + this.transponder;
+        result += String.format("\nLength: %.0f metres\n", this.length);
+        result += String.format("Beam: %.0f metres\n", this.beam);
+        result += String.format("Draft: %.0f metres\n", this.draft);
+        result += String.format("Capacity: %.0f tons\n", this.capacity);
+        result += "Location (" + this.longitude + "," + this.latitude + ")";
+        result += String.format("\nLocation (%d,%d)\n", MapConverter.lon2col(this.getLongitude()), MapConverter.lat2row(this.getLatitude()));
         if (this.getCargo() != null) {
-            this.getCargo().display();
+            result += this.getCargo().display();
         } else {
-            System.out.println("The cargo is already unloaded");
+            result += "The cargo is already unloaded\n";
         }
+        return result;
     }
     
     /**
