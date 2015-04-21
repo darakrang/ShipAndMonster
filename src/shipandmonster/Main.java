@@ -143,7 +143,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 System.exit(0);
                 break;
             case MenuLibrary.labelAbout:
-                JOptionPane.showMessageDialog(this, MenuLibrary.commandAbout);
+                JOptionPane.showMessageDialog(frame, MenuLibrary.commandAbout);
                 break;
             case MenuLibrary.commandGenerateShips:
                 int input = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE));
@@ -911,13 +911,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
     public ImageIcon symbolToIcon(char symbol) {
         if (symbol == '.') {
-            return new ImageIcon(MenuLibrary.iconPath + "seamlessWater.jpg"); //check
+            return new ImageIcon(MenuLibrary.iconPath + "seamlessWater.jpg"); //need to get
         } else if (symbol == '*') {
-            return new ImageIcon(MenuLibrary.iconPath + "seamlessShore.jpg"); //check
+            return new ImageIcon(MenuLibrary.iconPath + "seamlessShore.jpg"); //need to get
         } else if (symbol == 'D') {
-            return new ImageIcon(MenuLibrary.iconPath + "emptyDock.jpg"); //check
+            return new ImageIcon(MenuLibrary.iconPath + "emptyDock.jpg"); //need to get
         } else if (symbol == 'C') {
-            return new ImageIcon(MenuLibrary.iconPath + "emptyCrane.jpg"); //needs to be edited and resized
+            return new ImageIcon(MenuLibrary.iconPath + "emptyCrane.jpg"); //need to get
         } else if (symbol == 'P') {
             return new ImageIcon(MenuLibrary.iconPath + "emptyPier.jpg"); //need to get
         } else if (symbol == 'S') {

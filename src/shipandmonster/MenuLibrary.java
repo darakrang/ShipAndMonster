@@ -49,5 +49,5 @@ public class MenuLibrary
     //Genii = plural of Genius
     
     //IMPORTANT: file paths should be changed and verified for the demonstration!!!
-    public static final String iconPath = "C:\\Users\\Hunter\\Documents\\UTA Files\\Spring2015 (Freshman)\\CSE 1325 (Object-Oriented Programming)\\Semester Project\\Icons";
+    public static final String iconPath = "\\images";
 }
