@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -51,8 +52,8 @@ public class Map {
     }
 
     //gererate ships and add it to map object
-    public void generateShip() {
-        int shipNumber = 0;
+    public void generateShip(int shipNumber) {
+        //int shipNumber = 0;
         double longitude;
         double latitude;
         int col, row, counter;
@@ -60,7 +61,7 @@ public class Map {
         boolean flag = true;
         Random random = new Random();
 
-        while (flag) {
+        /*while (flag) {
             try {
                 System.out.println("Enter a number of ships between 1 and 10: ");
                 shipNumber = systemInput.nextInt();
@@ -75,7 +76,7 @@ public class Map {
                 systemInput = new Scanner(System.in);
             }
 
-        }
+        }*/
 
         arrayTypeShip.add(new CargoShip());
         arrayTypeShip.add(new ContainerShip());

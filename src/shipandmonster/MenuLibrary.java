@@ -45,7 +45,7 @@ public class MenuLibrary
     private static String idTwo = "1000910872";
     private static String nameThree = "Hunter Reynolds";
     private static String idThree = "1000999648";
-    public static final String commandAbout = String.format("The Ottoman Genii\nCSE 1325-002\nApril 28, 2015\n\tName: %s\n\tID: %s", nameOne, idOne, nameTwo, idTwo, nameThree, idThree);
+    public static final String commandAbout = String.format("Group 8\nCSE 1325-002\nApril 28, 2015\n\nName: %s\nID: %s\n\nName: %s\nID: %s\n\nName: %s\nID: %s", nameOne, idOne, nameTwo, idTwo, nameThree, idThree);
     //Genii = plural of Genius
     
     //IMPORTANT: file paths should be changed and verified for the demonstration!!!

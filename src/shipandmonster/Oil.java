@@ -38,8 +38,8 @@ public class Oil extends Cargo{
 
     //print out the current information about the cargo
     @Override
-    public void display() {
-        System.out.format("%d barrels of %s\n", this.getBarrels(), this.getDescription());
+    public String display() {
+        return String.format("%d barrels of %s\n", this.getBarrels(), this.getDescription());
     }
 
     /**
