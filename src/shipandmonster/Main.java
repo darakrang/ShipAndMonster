@@ -4,11 +4,8 @@
  */
 package shipandmonster;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.Window;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -21,11 +18,8 @@ import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
@@ -34,11 +28,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 
 /**
  *
@@ -64,6 +55,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private JFrame frame;
     private JLabel stLabel;
     private JTextArea statusTerminal;
+    private JPanel stPanel;
     private JScrollPane stScrollPane;
     private JButton button1, button2, button3, button4;
 
@@ -951,13 +943,14 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         stLabel.setBorder(BorderFactory.createLineBorder(Color.black));
         stLabel.setOpaque(true);
         
-        statusTerminal = new JTextArea();
-        statusTerminal.setBounds(0, 550, 510, 140);
+        statusTerminal = new JTextArea("");
+        statusTerminal.setBounds(0, 0, 510, 140);
         statusTerminal.setEditable(false);
         statusTerminal.setOpaque(true);
         statusTerminal.setBorder(BorderFactory.createLineBorder(Color.black));
         
         stScrollPane = new JScrollPane(statusTerminal);
+        stScrollPane.setBounds(0, 555, 510, 140);
 
         button1 = new JButton("Button 1");
         button1.setBounds(510, 540, 150, 75);
@@ -990,12 +983,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 //        JScrollPane spStatusTerminal = new JScrollPane(statusTerminal);
 
         frame.add(stLabel);
-
-        frame.add(statusTerminal);
-
-
         frame.add(stScrollPane);
-
         frame.add(button1);
         frame.add(button2);
         frame.add(button3);
