@@ -99,6 +99,25 @@ public class CargoShip {
             System.out.println("The cargo is already unloaded");
         }
     }
+    
+    public String displayShip() {
+        String report = new String();
+        report = ("Cargo Ship: " + this.getName()+"\n");
+        report +=("Country of Origin: " + this.getCountry()+"\n");
+        report +=("Transponder: " + this.getTransponder()+"\n");
+        report += String.format("Length: %.0f metres\n", this.getLength());
+        report += String.format("Beam: %.0f metres\n", this.getBeam());
+        report += String.format("Draft: %.0f metres\n", this.getDraft());
+        report += String.format("Capacity: %.0f tons\n", this.getCargoCapacity());
+        report +=("Location (" + this.getLongitude() + "," + this.getLatitude() + ")"+"\n");
+        report += String.format("Location (%d,%d)\n", MapConverter.lon2col(this.getLongitude()), MapConverter.lat2row(this.getLatitude()));
+//        if (this.getCargo() != null) {
+//            this.getCargo().display();
+//        } else {
+//            report +=("The cargo is already unloaded"+"\n");
+//        }
+        return report;
+    }
 
     // update ship information
     public void updateShipProperty(int property) {

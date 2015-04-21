@@ -35,6 +35,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -148,19 +149,38 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                         + "Dara");
                 break;
             case MenuLibrary.commandGenerateShips:
-                //String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE);
-                map.generateShip();
+                String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE);
+                map.generateShip(Integer.valueOf(input));
                 break;
             case MenuLibrary.commandUpdateShips:
-                UpdateShipListForm frm = new UpdateShipListForm();
-                frm.ShowDiaglog(map.getArrayListShip());
+                UpdateShipListForm frmShip = new UpdateShipListForm();
+                frmShip.ShowDiaglog(map.getArrayListShip());
                 break;
             case MenuLibrary.commandDisplayShips:
-                map.displayShips();
+                displayShipsInForm();
+                break;
+            case MenuLibrary.commandUnloadShip:
+                UnloadShipForm frmUnload = new UnloadShipForm();
+                frmUnload.ShowDiaglog(port, map.getArrayListShip());
                 break;
         }
     }
 
+    public void displayShipsInForm() {
+        if (map.getArrayListShip().isEmpty()) {
+//            System.out.println("There is no ship left in the map.");
+            
+            statusTerminal.append("There is no ship left in the map.\n");
+        } else {
+            for (CargoShip ship : map.getArrayListShip()) {
+//                System.out.println("------------------------------------------------");
+                statusTerminal.append("------------------------------------------------\n");
+                statusTerminal.append(ship.displayShip());
+            }
+            System.out.println();
+        }
+    }
+    
     //Mouse Listener Methods
     /**
      * Not used in this particular program
@@ -468,8 +488,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         unloadShip = arrayListUnloadShip.get(startIndex);
         unloadDock = arrayListUnloadDock.get(startIndex);
 
-        unloadDock.setSymbol(
-                '$');
+        unloadDock.setSymbol('$');
 
         unloadShip.setLatitude(unloadDock.getLatitude());
         unloadShip.setLongitude(unloadDock.getLongitude());
@@ -825,9 +844,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         //port menu
         menuPort = new JMenu(MenuLibrary.labelPort);
         mUnloadShip = new JMenuItem(MenuLibrary.commandUnloadShip);
+        mUnloadShip.addActionListener(this);
         mUpdateDocks = new JMenuItem(MenuLibrary.commandUpdateDock);
+        mUpdateDocks.addActionListener(this);
         mDisplayDocks = new JMenuItem(MenuLibrary.commandDisplayDocks);
+        mDisplayDocks.addActionListener(this);
         mDisplayCargos = new JMenuItem(MenuLibrary.commandDisplayCargos);
+        mDisplayCargos.addActionListener(this);
         menuPort.add(mUnloadShip);
         menuPort.add(mUpdateDocks);
         menuPort.add(mDisplayDocks);
@@ -886,7 +909,6 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         //gridLabel.setBounds(0, 0, 810, 540);
         //gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
         //IMPORTANT: file paths should be changed and verified for the demonstration!!!
-
         labelMap = new JLabel[54][36];
         for (int c = 0; c < 54; c++) {
             for (int r = 0; r < 36; r++) {
@@ -898,7 +920,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
         frame.setJMenuBar(menuBar);
         //frame.add(gridLabel);
+//        JScrollPane spStatusTerminal = new JScrollPane(statusTerminal);
         frame.add(statusTerminal);
+        
         frame.add(button1);
         frame.add(button2);
         frame.add(button3);

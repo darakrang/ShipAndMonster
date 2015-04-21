@@ -44,7 +44,7 @@ public class UpdateShipListForm extends JDialog implements ActionListener,ListSe
     
     ArrayList<String> listData;
     
-    private ArrayList<CargoShip> arrayListShip;
+    private ArrayList<CargoShip> arrayListShip;    
     
     public UpdateShipListForm()
     {

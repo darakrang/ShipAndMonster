@@ -51,8 +51,8 @@ public class Map {
     }
 
     //gererate ships and add it to map object
-    public void generateShip() {
-        int shipNumber = 0;
+    public void generateShip(int shipNumber) {
+//        int shipNumber = 0;
         double longitude;
         double latitude;
         int col, row, counter;
@@ -60,22 +60,22 @@ public class Map {
         boolean flag = true;
         Random random = new Random();
 
-        while (flag) {
-            try {
-                System.out.println("Enter a number of ships between 1 and 10: ");
-                shipNumber = systemInput.nextInt();
-                if (shipNumber < 1 || shipNumber > 10) {
-                    flag = true;
-                } else {
-                    flag = false;
-                }
-            } catch (InputMismatchException ex) {
-                System.out.println("Please enter \'Integer Number\'.");
-                flag = true;
-                systemInput = new Scanner(System.in);
-            }
-
-        }
+//        while (flag) {
+//            try {
+//                System.out.println("Enter a number of ships between 1 and 10: ");
+//                shipNumber = systemInput.nextInt();
+//                if (shipNumber < 1 || shipNumber > 10) {
+//                    flag = true;
+//                } else {
+//                    flag = false;
+//                }
+//            } catch (InputMismatchException ex) {
+//                System.out.println("Please enter \'Integer Number\'.");
+//                flag = true;
+//                systemInput = new Scanner(System.in);
+//            }
+//
+//        }
 
         arrayTypeShip.add(new CargoShip());
         arrayTypeShip.add(new ContainerShip());
@@ -163,6 +163,8 @@ public class Map {
         }
     }
 
+    
+    
     //update Ship Property
     public void updateShipProperty(int index, int shipProperty) {
         CargoShip ship = arrayListShip.get(index);
