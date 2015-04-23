@@ -296,7 +296,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         if(e.getSource() instanceof MapTile)
         {
             MapTile tempTile = (MapTile)e.getSource();
-            mouseTerminal.setText(String.format("Column: %d\nRow: %d\n%s", tempTile.getPosition().column, tempTile.getPosition().row, tempTile.getDescription()));
+            mouseTerminal.setText(String.format("Column: %d\nRow: %d\n%s", tempTile.getPosition().getColumn(), tempTile.getPosition().getRow(), tempTile.getDescription()));
         }
     }
 
