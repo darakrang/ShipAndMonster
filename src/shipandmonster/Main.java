@@ -11,15 +11,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.File;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
-import javax.imageio.ImageIO;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -33,6 +34,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.WindowConstants;
 
 /**
  *
@@ -152,6 +154,18 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     break;
                 case MenuLibrary.commandUpdateShips:
                     UpdateShipListForm frmShip = new UpdateShipListForm();
+                    frmShip.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                    frmShip.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosed(WindowEvent e) {
+                            System.out.println("jdialog window closed");
+                            try {
+                                refreshMapData();
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
                     frmShip.ShowDialog(map.getArrayListShip());
                     break;
                 case MenuLibrary.commandDisplayShips:
@@ -188,6 +202,18 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     break;
                 case MenuLibrary.commandUpdateMonsters:
                     UpdateMonsterListForm frmMonster = new UpdateMonsterListForm();
+                    frmMonster.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                    frmMonster.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosed(WindowEvent e) {
+                            System.out.println("jdialog window closed");
+                            try {
+                                refreshMapData();
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
                     frmMonster.ShowDialog(arrayListMonster);
                     break;
                 case MenuLibrary.commandDisplayMonsters:
@@ -343,10 +369,11 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         String lastName = lastNames[indexLastName];
         monster.setLabel(firstName + " " + lastName);
 
-            //add to array list of map
-        for(SeaMonster godzilla: arrayListMonster){
-            if(godzilla instanceof Godzilla)
+        //add to array list of map
+        for (SeaMonster godzilla : arrayListMonster) {
+            if (godzilla instanceof Godzilla) {
                 arrayListMonster.remove(godzilla);
+            }
         }
         arrayListMonster.add(monster);
 
@@ -909,7 +936,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     }
 
     // combine dock, ship and map data
-    private void refreshMapData() throws FileNotFoundException {
+    public void refreshMapData() throws FileNotFoundException {
         int row = 0, col = 0;
         int index = 0, startIndex = 0;
         CargoShip checkingShip = new CargoShip();

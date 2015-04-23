@@ -46,6 +46,7 @@ public class UpdateCargoForm extends JDialog implements ActionListener {
     private Cargo cargoData;
     private ArrayList<CargoShip> arrayListShipData;
     private int indexShipData;
+    private JDialog parent;
     
     public UpdateCargoForm() {
         
@@ -93,10 +94,11 @@ public class UpdateCargoForm extends JDialog implements ActionListener {
         
     }
     
-    public void ShowDiaglog(Cargo cargo, int indexShip, ArrayList<CargoShip> arrayListShip) {
+    public void ShowDiaglog(Cargo cargo, int indexShip, ArrayList<CargoShip> arrayListShip, JDialog parent) {
         this.arrayListShipData = arrayListShip;
         this.indexShipData = indexShip;
         this.cargoData = cargo;
+        this.parent = parent;
         
         loadFormData(this.cargoData);
         this.setSize(new Dimension(300, 150));
@@ -119,9 +121,8 @@ public class UpdateCargoForm extends JDialog implements ActionListener {
             this.dispose();
         } else if (e.getActionCommand() == commandCancel) {
             this.dispose();
-        } 
-        UpdateShipForm frm = new UpdateShipForm();
-        frm.ShowDiaglog(this.indexShipData,this.arrayListShipData);
+        }
+        this.parent.setVisible(true);
     }
     
 }

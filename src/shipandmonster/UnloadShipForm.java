@@ -38,9 +38,6 @@ public class UnloadShipForm extends JDialog implements ActionListener, ListSelec
     public static final String commandCancel = "Cancel";
 
     ArrayList<String> listData;
-
-//    private ArrayList<CargoShip> arrayListShip;
-//    private ArrayList<Dock> ArrayListDock;
     private ArrayList<CargoShip> arrayListUnloadShip;
     private ArrayList<Dock> arrayListUnloadDock;
     private ArrayList<Cargo> arrayListUnloadCargo;
@@ -94,7 +91,6 @@ public class UnloadShipForm extends JDialog implements ActionListener, ListSelec
 
     public void ShowDiaglog(ArrayList<Dock> dockList, ArrayList<CargoShip> shipList, ArrayList<Cargo> cargoList) {
         //get and fill data to Unload Dock and Ship
-//        getArrayListUnloadShipsAndDock(port, shipList);
         arrayListUnloadDock = dockList;
         arrayListUnloadShip = shipList;
         arrayListUnloadCargo = cargoList;

@@ -91,7 +91,7 @@ public class Map {
                     case water:
                     case emptyDock:
                         ship.setLongitude(longitude);
-                        ship.setLatitude(latitude);
+                        ship.setLatitude(latitude);                        
                         flag = false;
                         break;
                     default:

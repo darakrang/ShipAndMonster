@@ -9,15 +9,12 @@ package shipandmonster;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.ScrollPane;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import javax.swing.JScrollPane;
@@ -63,7 +60,6 @@ public class UpdateShipListForm extends JDialog implements ActionListener,ListSe
         buttonCancel.addActionListener(this);
 
         listData=new ArrayList<String>();
-        
         makeDialog();
     }
     
@@ -113,8 +109,8 @@ public class UpdateShipListForm extends JDialog implements ActionListener,ListSe
         {
             int index=list.getSelectedIndex();            
             UpdateShipForm frm = new UpdateShipForm();
-            frm.ShowDiaglog(index, arrayListShip);
-            this.dispose();
+            frm.ShowDiaglog(index, arrayListShip, this);
+            this.setVisible(false);
         }
         else if (e.getActionCommand()==commandCancel)
         {
