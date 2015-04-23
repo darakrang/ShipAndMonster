@@ -17,6 +17,10 @@ public class Position {
     public int x;//pixel location
     public int y;
     
+    public Position(){
+        
+    }
+    
     public Position(int col, int row)
     {
         this.column = col;

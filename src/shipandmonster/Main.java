@@ -64,7 +64,6 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private MapTile[][] bufferMap;
 
     //private JLabel gridLabel;
-
     private JMenuBar menuBar;
 
     private JMenu menuFile;
@@ -93,16 +92,16 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private JMenuItem mSummonGodzilla;
 
     private JMenuItem mAbout;
-    
+
     private ArrayList<CargoShip> arrayListUnloadShip = new ArrayList<CargoShip>();
     private ArrayList<Dock> arrayListUnloadDock = new ArrayList<Dock>();
-    private Port unloadPort = new Port();
+    private ArrayList<SeaMonster> arrayListMonster = new ArrayList<SeaMonster>();
 
     //Create the object
     public Main() {
         //start initializing the GUI
         super("Monstrous Shipping Simulator");
-        
+
         //This is the Constructor
         shipProperty = new CargoShip();
         cargoProperty = new Cargo();
@@ -137,8 +136,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() instanceof JMenuItem || e.getSource() instanceof JButton)
-        {
+        if (e.getSource() instanceof JMenuItem || e.getSource() instanceof JButton) {
             String command = e.getActionCommand();
 
             switch (command) {
@@ -158,12 +156,12 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     break;
                 case MenuLibrary.commandDisplayShips:
                     displayShipsInForm();
-                    System.out.println(map.displayShips());
+//                    System.out.println(map.displayShips());
                     break;
                 case MenuLibrary.commandUnloadShip:
                     UnloadShipForm frmUnload = new UnloadShipForm();
-                    getArrayListUnloadShipsAndDock(arrayListUnloadDock, arrayListUnloadShip);                
-                    frmUnload.ShowDiaglog(arrayListUnloadDock,arrayListUnloadShip,port.getArrayListCargo());
+                    getArrayListUnloadShipsAndDock(arrayListUnloadDock, arrayListUnloadShip);
+                    frmUnload.ShowDiaglog(arrayListUnloadDock, arrayListUnloadShip, port.getArrayListCargo());
                     statusTerminal.append(map.displayShips());
                     break;
                 case MenuLibrary.commandUpdateDock:
@@ -178,6 +176,27 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     displayCargosInForm();
                     port.displayCargoList();
                     break;
+                case MenuLibrary.commandGenerateMonsters:
+                    String inputMonster = JOptionPane.showInputDialog(null, "Enter Number of Monster:", "Generate Monsters", JOptionPane.INFORMATION_MESSAGE);
+                    generateMonster(Integer.valueOf(inputMonster));
+                    break;
+                case MenuLibrary.commandUpdateMonsters:
+                    UpdateMonsterListForm frmMonster = new UpdateMonsterListForm();
+                    frmMonster.ShowDialog(arrayListMonster);
+                    break;
+                case MenuLibrary.commandDisplayMonsters:
+                    displayMonstersInForm();
+                    break;
+                case MenuLibrary.commandRemoveMonsters:
+                    arrayListMonster.clear();
+//                 {
+//                    try {
+//                        refreshMapData();
+//                    } catch (FileNotFoundException ex) {
+//                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+                    break;
                 //JButtons
                 case MenuLibrary.commandStart:
                     break;
@@ -187,6 +206,89 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     break;
             }
         }
+
+        this.repaint();
+    }
+    
+    public void displayMonstersInForm() {
+        if (arrayListMonster.isEmpty()) {
+            statusTerminal.append("There is no monster left in the map.\n");
+        } else {
+            for (SeaMonster monster : arrayListMonster) {
+                statusTerminal.append(monster.displayMonster());
+            }
+            System.out.println();
+            System.out.println();
+        }
+    }
+    
+    //gererate monsters and add it to map object
+    public void generateMonster(int monsterNumber) {
+        ArrayList<SeaMonster> arrayListTypeMonster = new ArrayList<SeaMonster>();
+        SeaMonster monster;
+        double longitude;
+        double latitude;
+        int col, row, counter;
+        char symbol;
+        boolean flag = true;
+        Random random = new Random();
+
+        arrayListTypeMonster.add(new SeaSerpent());
+        arrayListTypeMonster.add(new Kraken());
+        arrayListTypeMonster.add(new Leviathan());
+//        arrayListTypeMonster.add(new Godzilla());
+        for (counter = 0; counter < monsterNumber; counter++) {
+            //generate location of the ship
+            flag = true;
+
+            //random ship object
+            int indexMonster = random.nextInt(3);
+            if (arrayListTypeMonster.get(indexMonster) instanceof SeaSerpent) {
+                monster = new SeaSerpent();
+            } else if (arrayListTypeMonster.get(indexMonster) instanceof Kraken) {
+                monster = new Kraken();
+            } else {
+                monster = new Leviathan();
+            }
+            while (flag) {
+                longitude = Main.randomDoubleInRange(-3.035000, -2.988478);
+                latitude = Main.randomDoubleInRange(53.396700, 53.457561);
+                col = MapConverter.lon2col(longitude);
+                row = MapConverter.lat2row(latitude);
+
+                // check: location of ship is out of map
+                if (row > 35 || col > 53) {
+                    continue;
+                }
+                symbol = map.getMapSymbol()[row][col];
+                switch (symbol) {
+                    case '.':
+                    case 'D':
+                        monster.setPosition(new Position());
+                        monster.getPosition().setLongitude(longitude);
+                        monster.getPosition().setLatitude(latitude);
+                        monster.getPosition().setRow(MapConverter.lon2col(longitude));
+                        monster.getPosition().setColumn(MapConverter.lat2row(latitude));
+                        flag = false;
+                        break;
+                    default:
+                        flag = true;
+                        break;
+                }
+            }
+
+            // generate ship name        
+            int indexFirstName = random.nextInt(10);
+            int indexLastName = random.nextInt(10);
+            String firstNames[] = {"Red", "Green", "Dark", "Light", "Day", "Night", "Savanah", "Mountain", "Captain’s", "Admiral’s"};
+            String lastNames[] = {"Buffalo", "Pastures", "Knight", "Wave", "Star", "Moon", "Lion", "Goat", "Pride", "Joy"};
+            String firstName = firstNames[indexFirstName];
+            String lastName = lastNames[indexLastName];
+            monster.setLabel(firstName + " " + lastName);
+
+            //add to array list of map
+            arrayListMonster.add(monster);
+        }
         
         this.repaint();
     }
@@ -194,7 +296,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     public void getArrayListUnloadShipsAndDock(ArrayList<Dock> arrayListDock, ArrayList<CargoShip> arrayListShip) {
         int index = 0, startIndex = 0;
         CargoShip unloadShip;
-        
+
         for (Dock dock : port.getArrayListDock()) {
             if (dock.getSymbol() == '$') {
                 continue;
@@ -214,9 +316,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             }
         }
     }
-    
+
     public void displayShipsInForm() {
-        if (map.getArrayListShip().isEmpty()) {            
+        if (map.getArrayListShip().isEmpty()) {
             statusTerminal.append("There is no ship left in the map.\n");
         } else {
             for (CargoShip ship : map.getArrayListShip()) {
@@ -226,9 +328,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             System.out.println();
         }
     }
-    
+
     public void displayDocksInForm() {
-        if (port.getArrayListDock().isEmpty()) {            
+        if (port.getArrayListDock().isEmpty()) {
             statusTerminal.append("There is no dock left in the port.\n");
         } else {
             for (Dock dock : port.getArrayListDock()) {
@@ -238,9 +340,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             System.out.println();
         }
     }
-    
+
     public void displayCargosInForm() {
-        if (port.getArrayListCargo().isEmpty()) {            
+        if (port.getArrayListCargo().isEmpty()) {
             statusTerminal.append("There is no cargo left in the port.\n");
         } else {
             for (Cargo cargo : port.getArrayListCargo()) {
@@ -250,7 +352,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             System.out.println();
         }
     }
-    
+
     //Mouse Listener Methods
     /**
      * Not used in this particular program
@@ -259,7 +361,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mouseClicked(MouseEvent e) {
-        
+
     }
 
     /**
@@ -281,7 +383,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-        
+
     }
 
     /**
@@ -291,11 +393,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      * @param e
      */
     @Override
-    public void mouseEntered(MouseEvent e)
-    {
-        if(e.getSource() instanceof MapTile)
-        {
-            MapTile tempTile = (MapTile)e.getSource();
+    public void mouseEntered(MouseEvent e) {
+        if (e.getSource() instanceof MapTile) {
+            MapTile tempTile = (MapTile) e.getSource();
             mouseTerminal.setText(String.format("Column: %d\nRow: %d\n%s", tempTile.getPosition().getColumn(), tempTile.getPosition().getRow(), tempTile.getDescription()));
         }
     }
@@ -306,9 +406,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      * @param e
      */
     @Override
-    public void mouseExited(MouseEvent e)
-    {
-         //do nothing
+    public void mouseExited(MouseEvent e) {
+        //do nothing
     }
 
     /**
@@ -319,9 +418,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      * @param e
      */
     @Override
-    public void mouseDragged(MouseEvent e)
-    {
-        
+    public void mouseDragged(MouseEvent e) {
+
     }
 
     /**
@@ -330,8 +428,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      * @param e
      */
     @Override
-    public void mouseMoved(MouseEvent e)
-    {
+    public void mouseMoved(MouseEvent e) {
         //do nothing
     }
 
@@ -433,7 +530,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
     //show Map
     public void showMap() throws FileNotFoundException {
-        
+
         this.repaint();
 
     }
@@ -836,7 +933,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 }
             }
         }
-        
+
         //update images
         for (row = 0; row < 36; row++) {
             for (col = 0; col < 54; col++) {
@@ -972,22 +1069,22 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         stLabel.setBackground(Color.white);
         stLabel.setBorder(BorderFactory.createLineBorder(Color.black));
         stLabel.setOpaque(true);
-        
+
         statusTerminal = new JTextArea("");
         statusTerminal.setBounds(0, 0, 512, 140);
         statusTerminal.setEditable(false);
         statusTerminal.setOpaque(true);
         statusTerminal.setBorder(BorderFactory.createLineBorder(Color.black));
-        
+
         stScrollPane = new JScrollPane(statusTerminal);
         stScrollPane.setBounds(0, 555, 512, 140);
-        
+
         mtLabel = new JLabel("Mouse Terminal", JLabel.CENTER);
         mtLabel.setBounds(510, 615, 150, 15);
         mtLabel.setBackground(Color.white);
         mtLabel.setBorder(BorderFactory.createLineBorder(Color.black));
         mtLabel.setOpaque(true);
-        
+
         mouseTerminal = new JTextArea("");
         mouseTerminal.setBounds(510, 630, 150, 60);
         mouseTerminal.setEditable(false);
@@ -1002,16 +1099,14 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
         button3 = new JButton(MenuLibrary.command3D);
         button3.setBounds(660, 615, 150, 75);
-        
+
         //gridLabel = new JLabel();
         //gridLabel.setBounds(0, 0, 810, 540);
         //gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
         //IMPORTANT: file paths should be changed and verified for the demonstration!!!
         bufferMap = new MapTile[54][36];
-        for(int c = 0; c < 54; c++)
-        {
-            for(int r = 0; r < 36; r++)
-            {
+        for (int c = 0; c < 54; c++) {
+            for (int r = 0; r < 36; r++) {
                 bufferMap[c][r] = new MapTile(c, r);
                 bufferMap[c][r].addMouseListener(this);
                 bufferMap[c][r].addMouseMotionListener(this);
@@ -1023,7 +1118,6 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         //frame.add(gridLabel);
 
 //        JScrollPane spStatusTerminal = new JScrollPane(statusTerminal);
-
         this.add(stLabel);
         this.add(stScrollPane);
         this.add(mtLabel);
@@ -1034,91 +1128,59 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         this.setVisible(true);
     }
 
-    public ImageIcon symbolToIcon(char symbol)
-    {
-            if (symbol == '.')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "seamlessWater.jpg");
-            }
-            else if (symbol == '*')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "seamlessShore.jpg");
-            }
-            else if (symbol == 'D')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "emptyDock.jpg");
-            }
-            else if (symbol == 'C')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "emptyCrane.jpg");
-            }
-            else if (symbol == 'P')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "emptyPier.jpg");
-            }
-            else if (symbol == 'S')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "cargoShip.jpg");
-            }
-            else if (symbol == 'B')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "containerShip.jpg");
-            }
-            else if (symbol == 'T')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "oilTanker.jpg");
-            }
-            else if (symbol == '$')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "dockedShip.jpg");
-            }
-            else if (symbol == 'X')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "unsafeShip.jpg");
-            }
-            else if (symbol == 'G')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "godzilla.jpg");
-            }
-            else if (symbol == 'K')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "kraken.jpg");
-            }
-            else if (symbol == 'L')
-            {
-                return new ImageIcon(MenuLibrary.iconPath + "leviathan.jpg");
-            }
-            else if (symbol == 's')
-            {
-                //CAREFUL! Lowercase 's' is the sea serpent, upper-case 'S' is a cargo ship
-                return new ImageIcon(MenuLibrary.iconPath + "seaSerpent.jpg");
-            }
+    public ImageIcon symbolToIcon(char symbol) {
+        if (symbol == '.') {
+            return new ImageIcon(MenuLibrary.iconPath + "seamlessWater.jpg");
+        } else if (symbol == '*') {
+            return new ImageIcon(MenuLibrary.iconPath + "seamlessShore.jpg");
+        } else if (symbol == 'D') {
+            return new ImageIcon(MenuLibrary.iconPath + "emptyDock.jpg");
+        } else if (symbol == 'C') {
+            return new ImageIcon(MenuLibrary.iconPath + "emptyCrane.jpg");
+        } else if (symbol == 'P') {
+            return new ImageIcon(MenuLibrary.iconPath + "emptyPier.jpg");
+        } else if (symbol == 'S') {
+            return new ImageIcon(MenuLibrary.iconPath + "cargoShip.jpg");
+        } else if (symbol == 'B') {
+            return new ImageIcon(MenuLibrary.iconPath + "containerShip.jpg");
+        } else if (symbol == 'T') {
+            return new ImageIcon(MenuLibrary.iconPath + "oilTanker.jpg");
+        } else if (symbol == '$') {
+            return new ImageIcon(MenuLibrary.iconPath + "dockedShip.jpg");
+        } else if (symbol == 'X') {
+            return new ImageIcon(MenuLibrary.iconPath + "unsafeShip.jpg");
+        } else if (symbol == 'G') {
+            return new ImageIcon(MenuLibrary.iconPath + "godzilla.jpg");
+        } else if (symbol == 'K') {
+            return new ImageIcon(MenuLibrary.iconPath + "kraken.jpg");
+        } else if (symbol == 'L') {
+            return new ImageIcon(MenuLibrary.iconPath + "leviathan.jpg");
+        } else if (symbol == 's') {
+            //CAREFUL! Lowercase 's' is the sea serpent, upper-case 'S' is a cargo ship
+            return new ImageIcon(MenuLibrary.iconPath + "seaSerpent.jpg");
+        }
 
-            //to make the compiler happy, add in a guaranteed return statement
-            return null;
+        //to make the compiler happy, add in a guaranteed return statement
+        return null;
     }
-    
+
     @Override
-    public void paint(Graphics g)
-    {
+    public void paint(Graphics g) {
         //combine ship, dock, and map data
         //and update images
-        try
-        {
+        try {
             refreshMapData();
-        }
-        catch(FileNotFoundException e)
-        {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        
+
         super.paint(g);
-        
+
         /*print map
-        for (int row = 0; row < 36; row++) {
-            for (int col = 0; col < 54; col++) {
-                g.drawImage(bufferMap[col][row], MenuLibrary.ICON_SIZE*col + MenuLibrary.MAP_ORIGIN_X, MenuLibrary.ICON_SIZE*row + MenuLibrary.MAP_ORIGIN_Y, this);
-            }
-        }*/
+         for (int row = 0; row < 36; row++) {
+         for (int col = 0; col < 54; col++) {
+         g.drawImage(bufferMap[col][row], MenuLibrary.ICON_SIZE*col + MenuLibrary.MAP_ORIGIN_X, MenuLibrary.ICON_SIZE*row + MenuLibrary.MAP_ORIGIN_Y, this);
+         }
+         }*/
     }
 }
