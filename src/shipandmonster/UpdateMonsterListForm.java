@@ -109,8 +109,8 @@ public class UpdateMonsterListForm extends JDialog implements ActionListener,Lis
         {
             int index=list.getSelectedIndex();            
             UpdateMonsterForm frm = new UpdateMonsterForm();
-            frm.ShowDiaglog(index, arrayListMonster);
-            this.dispose();
+            frm.ShowDiaglog(index, arrayListMonster, this);
+            this.setVisible(false);
         }
         else if (e.getActionCommand()==commandCancel)
         {
