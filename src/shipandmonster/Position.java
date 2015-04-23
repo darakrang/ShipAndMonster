@@ -10,10 +10,20 @@ package shipandmonster;
  * @author Dara
  */
 public class Position {
-    private double latitude;
-    private double longitude;
-    private int currentRow;
-    private int currentColumn;
-    private int currentPixelLocation;
+    public double latitude;
+    public double longitude;
+    public int column;
+    public int row;
+    public int x;//pixel location
+    public int y;
     
+    public Position(int col, int row)
+    {
+        this.column = col;
+        this.row = row;
+        x = MenuLibrary.ICON_SIZE * col + MenuLibrary.MAP_ORIGIN_X;
+        y = MenuLibrary.ICON_SIZE * row + MenuLibrary.MAP_ORIGIN_Y;
+        longitude = MapConverter.col2lon(col);
+        latitude = MapConverter.row2lat(row);
+    }
 }

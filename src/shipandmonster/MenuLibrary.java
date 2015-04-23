@@ -51,9 +51,13 @@ public class MenuLibrary
     //buttons
     public static final String commandStart = "Begin Hunting";
     public static final String commandStop = "Stop Hunting";
-    public static final String commandDestroy = "Detonate Planet";
     public static final String command3D = "Launch 3D";
     
     //IMPORTANT: file paths should be changed and verified for the demonstration!!!
     public static final String iconPath = "E:\\Program Files\\NetBeansProjects\\ShipAndMonster\\images\\";
+    
+    
+    public static final int ICON_SIZE = 15; //15x15 icons
+    public static final int MAP_ORIGIN_X = 0;
+    public static final int MAP_ORIGIN_Y = 0;
 }
