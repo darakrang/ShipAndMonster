@@ -60,23 +60,6 @@ public class Map {
         boolean flag = true;
         Random random = new Random();
 
-//        while (flag) {
-//            try {
-//                System.out.println("Enter a number of ships between 1 and 10: ");
-//                shipNumber = systemInput.nextInt();
-//                if (shipNumber < 1 || shipNumber > 10) {
-//                    flag = true;
-//                } else {
-//                    flag = false;
-//                }
-//            } catch (InputMismatchException ex) {
-//                System.out.println("Please enter \'Integer Number\'.");
-//                flag = true;
-//                systemInput = new Scanner(System.in);
-//            }
-//
-//        }
-
         arrayTypeShip.add(new CargoShip());
         arrayTypeShip.add(new ContainerShip());
         arrayTypeShip.add(new OilTanker());
