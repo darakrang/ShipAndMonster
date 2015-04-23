@@ -15,5 +15,14 @@ public class Kraken extends SeaMonster {
         //TO DO: occupies the same square as any ship
         System.out.println("RELEASE ME!");
     }
+
+    @Override
+    public String displayMonster() {
+        String report = new String();
+        report = ("Kraken: " + this.getLabel()+"\n");
+        report +=("Location (" + this.getPosition().getLongitude() + "," + this.getPosition().getLatitude() + ")"+"\n");
+        report += String.format("Location (%d,%d)\n\n", this.getPosition().getRow(), this.getPosition().getColumn());
+        return report;
+    }
     
 }

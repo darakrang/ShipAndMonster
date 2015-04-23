@@ -15,7 +15,34 @@ public abstract class SeaMonster {
     protected String label;
     protected int currentCount;
     
-    abstract public void battleCry();
-    
-    
+    abstract public void battleCry();    
+    abstract public String displayMonster();
+
+    /**
+     * @return the position
+     */
+    public Position getPosition() {
+        return position;
+    }
+
+    /**
+     * @param position the position to set
+     */
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
+    /**
+     * @return the label
+     */
+    public String getLabel() {
+        return label;
+    }
+
+    /**
+     * @param label the label to set
+     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
 }
