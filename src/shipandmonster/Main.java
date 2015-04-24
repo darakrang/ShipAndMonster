@@ -174,7 +174,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                         public void windowClosed(WindowEvent e) {
                             System.out.println("jdialog window closed");
 //                            try {
-////                                refreshMapData();
+//                                refreshMapData();
 ////                                generateTargetDockForShip(s);
 ////                                newTargetPosition = new Position();
 ////                                newTargetPosition.setColumn(MapConverter.lon2col(s.getTargetDock().getLongitude()));

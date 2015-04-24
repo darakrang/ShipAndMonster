@@ -174,9 +174,11 @@ public class UpdateShipForm extends JDialog implements ActionListener {
             Position newTargetPosition;
             int col = Integer.valueOf(MapConverter.lon2col(shipData.getLongitude()));
             int row = Integer.valueOf(MapConverter.lat2row(shipData.getLatitude()));
-
+            int newCol = Integer.valueOf(this.txtColumn.getText());
+            int newRow = Integer.valueOf(this.txtRow.getText());
+            
 //            bufferMapData[col][row] = new MapTile(col, row);
-            bufferMapData[col][row].setLocation(bufferMapData[col][row].getX() + MenuLibrary.MAP_ORIGIN_X, bufferMapData[col][row].getY() + MenuLibrary.MAP_ORIGIN_Y);
+//            bufferMapData[col][row].setLocation(bufferMapData[col][row].getX() + MenuLibrary.MAP_ORIGIN_X, bufferMapData[col][row].getY() + MenuLibrary.MAP_ORIGIN_Y);
 
             shipData.setName(this.txtName.getText());
             shipData.setCountry(this.txtCountry.getText());
@@ -188,19 +190,15 @@ public class UpdateShipForm extends JDialog implements ActionListener {
             shipData.setLongitude(MapConverter.col2lon(Integer.valueOf(this.txtColumn.getText())));
             shipData.setLatitude(MapConverter.row2lat(Integer.valueOf(this.txtRow.getText())));
 
-            
-            int newCol = Integer.valueOf(this.txtColumn.getText());
-            int newRow = Integer.valueOf(this.txtRow.getText());
-
 //            bufferMapData[col][row] = new MapTile(col, row);
             bufferMapData[col][row].setLocation(bufferMapData[newCol][newRow].getX() + MenuLibrary.MAP_ORIGIN_X, bufferMapData[newCol][newRow].getY() + MenuLibrary.MAP_ORIGIN_Y);
-
+//            bufferMapData[col][row] = null;
 //            MapTile dropTile = bufferMapData[col][row];
             generateTargetDockForShip(shipData);
             newTargetPosition = new Position();
             newTargetPosition.setColumn(MapConverter.lon2col(shipData.getTargetDock().getLongitude()));
             newTargetPosition.setRow(MapConverter.lat2row(shipData.getTargetDock().getLatitude()));
-            bufferMapData[col][row].setTargetPosition(newTargetPosition);
+            bufferMapData[newCol][newRow].setTargetPosition(newTargetPosition);
 
             parent.setVisible(true);
 
