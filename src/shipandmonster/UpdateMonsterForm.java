@@ -33,22 +33,22 @@ public class UpdateMonsterForm extends JDialog implements ActionListener {
     JPanel fieldPanel;
     
     private JLabel lblLabel = new JLabel("Label");
-    private JLabel lblLongitude = new JLabel("Logitude");
-    private JLabel lblLatitude = new JLabel("Latitude");
+    private JLabel lblColumn = new JLabel("Column");
+    private JLabel lblRow = new JLabel("Row");
     
     private JTextField txtLabel;
-    private JTextField txtLongitude;
-    private JTextField txtLatitude;
+    private JTextField txtColumn;
+    private JTextField txtRow;
     
     public static final String commandUpdate = "Update";
     public static final String commandCancel = "Cancel";
-    
-
     
     private SeaMonster monsterData;
     private ArrayList<SeaMonster> arrayListMonster;
     private Cargo cargoData;
     private int indexShipData;
+    
+    private JDialog parent;
     
     public UpdateMonsterForm() {
         
@@ -63,8 +63,8 @@ public class UpdateMonsterForm extends JDialog implements ActionListener {
 
         //text fied
         txtLabel = new JTextField();
-        txtLongitude = new JTextField();
-        txtLatitude = new JTextField();
+        txtColumn = new JTextField();
+        txtRow = new JTextField();
         
         buttonUpdate = new JButton(commandUpdate);
         buttonUpdate.addActionListener(this);
@@ -75,10 +75,11 @@ public class UpdateMonsterForm extends JDialog implements ActionListener {
         makeDialog();
     }
     
-    public void ShowDiaglog(int indexMonster, ArrayList<SeaMonster> monsterList) {
+    public void ShowDiaglog(int indexMonster, ArrayList<SeaMonster> monsterList, JDialog parent) {
         this.monsterData = monsterList.get(indexMonster);
         this.arrayListMonster = monsterList;
         this.indexShipData = indexMonster;
+        this.parent = parent;
         
         loadFormData(monsterList.get(indexMonster));
         this.setSize(new Dimension(300, 150));
@@ -97,24 +98,22 @@ public class UpdateMonsterForm extends JDialog implements ActionListener {
         this.add(panelButton, BorderLayout.SOUTH);
 
         //Text Field Pane Layout
-        panelTextField.setLayout(new GridLayout(3, 2));
+        panelTextField.setLayout(new GridLayout(4, 2));
         panelTextField.add(this.lblLabel);
         panelTextField.add(this.txtLabel);
-        panelTextField.add(this.lblLongitude);
-        panelTextField.add(this.txtLongitude);
-        panelTextField.add(this.lblLatitude);
-        panelTextField.add(this.txtLatitude);
+        panelTextField.add(this.lblColumn);
+        panelTextField.add(this.txtColumn);
+        panelTextField.add(this.lblRow);
+        panelTextField.add(this.txtRow);
         
         this.add(panelTextField, BorderLayout.CENTER);
         
     }
     
-    public void loadFormData(SeaMonster monster) {
-        
+    public void loadFormData(SeaMonster monster) {        
         this.txtLabel.setText(monster.getLabel());
-        this.txtLongitude.setText(String.valueOf(monster.getPosition().getLongitude()));
-        this.txtLatitude.setText(String.valueOf(monster.getPosition().getLatitude()));
-        
+        this.txtColumn.setText(String.valueOf(monster.getPosition().getColumn()));
+        this.txtRow.setText(String.valueOf(monster.getPosition().getRow()));        
     }
         
     @Override
@@ -122,10 +121,11 @@ public class UpdateMonsterForm extends JDialog implements ActionListener {
 
         if (e.getActionCommand() == commandUpdate) {
             monsterData.setLabel(this.txtLabel.getText());
-            monsterData.getPosition().setLongitude(Double.valueOf(this.txtLongitude.getText()));
-            monsterData.getPosition().setLatitude(Double.valueOf(this.txtLatitude.getText()));
-            UpdateMonsterListForm frm = new UpdateMonsterListForm();
-            frm.ShowDialog(this.arrayListMonster);
+            monsterData.getPosition().setLongitude(Double.valueOf(MapConverter.col2lon(Integer.valueOf(this.txtColumn.getText()))));
+            monsterData.getPosition().setLatitude(Double.valueOf(MapConverter.row2lat(Integer.valueOf(this.txtRow.getText()))));
+            monsterData.getPosition().setColumn(Integer.valueOf(this.txtColumn.getText()));
+            monsterData.getPosition().setRow(Integer.valueOf(this.txtRow.getText()));
+            this.parent.setVisible(true);
             this.dispose();
         } else if (e.getActionCommand() == commandCancel) {
             UpdateMonsterListForm frm = new UpdateMonsterListForm();
