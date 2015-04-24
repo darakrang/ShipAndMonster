@@ -10,16 +10,15 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.ListSelectionEvent;
 
 /**
  *
@@ -43,8 +42,8 @@ public class UpdateShipForm extends JDialog implements ActionListener {
     private JLabel lblLength = new JLabel("Length");
     private JLabel lblDraft = new JLabel("Draft");
     private JLabel lblBeam = new JLabel("Beam");
-    private JLabel lblLongitude = new JLabel("Logitude");
-    private JLabel lblLatitude = new JLabel("Latitude");
+    private JLabel lblColumn = new JLabel("Column");
+    private JLabel lblRow = new JLabel("Row");
     private JLabel lblCargo = new JLabel("Cargo");
     
     private JTextField txtName;
@@ -54,8 +53,8 @@ public class UpdateShipForm extends JDialog implements ActionListener {
     private JTextField txtLenght;
     private JTextField txtDraft;
     private JTextField txtBeam;
-    private JTextField txtLongitude;
-    private JTextField txtLatitude;
+    private JTextField txtColumn;
+    private JTextField txtRow;
     private JButton btnCargo = new JButton("Load Cargo");
     
     public static final String commandUpdate = "Update";
@@ -67,7 +66,7 @@ public class UpdateShipForm extends JDialog implements ActionListener {
     private ArrayList<CargoShip> arrayListShip;
     private Cargo cargoData;
     private int indexShipData;
-    
+    private JDialog parent;
     public UpdateShipForm() {
         
         panelButton = new JPanel();
@@ -87,8 +86,8 @@ public class UpdateShipForm extends JDialog implements ActionListener {
         txtLenght = new JTextField();
         txtDraft = new JTextField();
         txtBeam = new JTextField();
-        txtLongitude = new JTextField();
-        txtLatitude = new JTextField();
+        txtColumn = new JTextField();
+        txtRow = new JTextField();
 
         btnCargo.addActionListener(this);
         
@@ -101,11 +100,12 @@ public class UpdateShipForm extends JDialog implements ActionListener {
         makeDialog();
     }
     
-    public void ShowDiaglog(int indexShip, ArrayList<CargoShip> shipList) {
+    public void ShowDiaglog(int indexShip, ArrayList<CargoShip> shipList, JDialog parent) {
         this.shipData = shipList.get(indexShip);
         this.arrayListShip = shipList;
         this.indexShipData = indexShip;
         this.cargoData = this.shipData.getCargo();
+        this.parent = parent;
         
         loadFormData(shipList.get(indexShip));
         this.setSize(new Dimension(300, 300));
@@ -139,10 +139,10 @@ public class UpdateShipForm extends JDialog implements ActionListener {
         panelTextField.add(this.txtDraft);
         panelTextField.add(this.lblBeam);
         panelTextField.add(this.txtBeam);
-        panelTextField.add(this.lblLongitude);
-        panelTextField.add(this.txtLongitude);
-        panelTextField.add(this.lblLatitude);
-        panelTextField.add(this.txtLatitude);
+        panelTextField.add(this.lblColumn);
+        panelTextField.add(this.txtColumn);
+        panelTextField.add(this.lblRow);
+        panelTextField.add(this.txtRow);
         panelTextField.add(this.lblCargo);
         panelTextField.add(this.btnCargo);
         
@@ -159,8 +159,8 @@ public class UpdateShipForm extends JDialog implements ActionListener {
         this.txtLenght.setText(String.valueOf(ship.getLength()));
         this.txtDraft.setText(String.valueOf(ship.getDraft()));
         this.txtBeam.setText(String.valueOf(ship.getBeam()));
-        this.txtLongitude.setText(String.valueOf(ship.getLongitude()));
-        this.txtLatitude.setText(String.valueOf(ship.getLatitude()));
+        this.txtColumn.setText(String.valueOf(MapConverter.lon2col(ship.getLongitude())));
+        this.txtRow.setText(String.valueOf(MapConverter.lat2row(ship.getLatitude())));
         
     }
         
@@ -175,10 +175,9 @@ public class UpdateShipForm extends JDialog implements ActionListener {
             shipData.setLength(Double.valueOf(this.txtLenght.getText()));
             shipData.setDraft(Double.valueOf(this.txtDraft.getText()));
             shipData.setBeam(Double.valueOf(this.txtBeam.getText()));
-            shipData.setLongitude(Double.valueOf(this.txtLongitude.getText()));
-            shipData.setLatitude(Double.valueOf(this.txtLatitude.getText()));
-            UpdateShipListForm frm = new UpdateShipListForm();
-            frm.ShowDialog(this.arrayListShip);
+            shipData.setLongitude(MapConverter.col2lon(Integer.valueOf(this.txtColumn.getText())));
+            shipData.setLatitude(MapConverter.row2lat(Integer.valueOf(this.txtRow.getText())));
+            parent.setVisible(true);
             this.dispose();
         } else if (e.getActionCommand() == commandCancel) {
             UpdateShipListForm frm = new UpdateShipListForm();
@@ -186,7 +185,7 @@ public class UpdateShipForm extends JDialog implements ActionListener {
             this.dispose();
         } else if (e.getActionCommand() == "Load Cargo") {
             UpdateCargoForm frm = new UpdateCargoForm();
-            frm.ShowDiaglog(this.cargoData,this.indexShipData,this.arrayListShip);
+            frm.ShowDiaglog(this.cargoData,this.indexShipData,this.arrayListShip,this);
             this.dispose();
         }
         
