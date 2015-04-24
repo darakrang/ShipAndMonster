@@ -45,7 +45,7 @@ public class MenuLibrary
     private static String idTwo = "1000910872";
     private static String nameThree = "Hunter Reynolds";
     private static String idThree = "1000999648";
-    public static final String commandAbout = String.format("Group 8\nCSE 1325-002\nApril 28, 2015\n\nName: %s\nID: %s\n\nName: %s\nID: %s\n\nName: %s\nID: %s", nameOne, idOne, nameTwo, idTwo, nameThree, idThree);
+    public static final String commandAbout = String.format("The Three Genii\nCSE 1325-002\nApril 28, 2015\n\nName: %s\nID: %s\n\nName: %s\nID: %s\n\nName: %s\nID: %s", nameOne, idOne, nameTwo, idTwo, nameThree, idThree);
     //Genii = plural of Genius
     
     //buttons
@@ -59,5 +59,5 @@ public class MenuLibrary
     
     public static final int ICON_SIZE = 15; //15x15 icons
     public static final int MAP_ORIGIN_X = 0;
-    public static final int MAP_ORIGIN_Y = 0;
+    public static final int MAP_ORIGIN_Y = 23;
 }

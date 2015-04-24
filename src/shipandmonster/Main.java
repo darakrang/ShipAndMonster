@@ -5,27 +5,26 @@
 package shipandmonster;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -54,14 +53,23 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private Port port;
     private FileHandler fileHandler;
 
+    //drag and drop members
+    private MapTile selectedTile;
+    private CargoShip selectedShip;
+    private SeaMonster selectedMonster;
+    private int startx, starty, startLayer, origx, origy;
+    
     //here are the GUI components [Hunter]
+    private JLayeredPane pane;
     private JLabel stLabel, mtLabel;
     private JTextArea statusTerminal, mouseTerminal;
     private JPanel stPanel;
     private JScrollPane stScrollPane;
     private JButton button1, button2, button3;
+    private JLabel backgroundLabel;
 
-    private MapTile[][] bufferMap;
+    //private JLabel[][] geoMap; //a background / geographical map including sea, land, and docks
+    private MapTile[][] bufferMap; //the full map including ships & monsters
 
     //private JLabel gridLabel;
     private JMenuBar menuBar;
@@ -119,7 +127,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
         //initialize the GUI [Hunter]
         initializeGUI();
-
+        selectedTile = null;
     }
 
     /**
@@ -432,7 +440,69 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mousePressed(MouseEvent e) {
-        this.repaint();
+        if(e.getSource() instanceof MapTile)
+        {
+            selectedTile = (MapTile)e.getSource();
+            char symbol = selectedTile.getSymbol();
+            
+            if(symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P')
+            {
+                //the user has picked up a ship or monster
+                startx = e.getX();
+                starty = e.getY();
+                origx = selectedTile.getX();
+                origy = selectedTile.getY();
+                
+                startLayer = pane.getLayer(selectedTile);
+                pane.moveToFront(selectedTile);
+                
+                //check if it is a docked ship
+                int targetColumn = selectedTile.getPosition().getColumn();
+                int targetRow = selectedTile.getPosition().getRow();
+                if(symbol == '$' || symbol == 'S' || symbol == 'B' || symbol == 'T' || symbol == 'X')
+                {
+                    for(CargoShip ship: map.getArrayListShip())
+                    {
+                        if(ship.getPosition().getColumn() == targetColumn && ship.getPosition().getRow() == targetRow)
+                        {
+                            selectedShip = ship;
+                            selectedMonster = null;
+                            
+                            //if the ship is on top of another ship, or in a dock, change the image to just the ship
+                            if(symbol == '$' || symbol == 'X')
+                            {
+                                if(ship instanceof OilTanker)
+                                {
+                                    selectedTile.setIcon(new ImageIcon(MenuLibrary.iconPath + "oilTanker.jpg"));
+                                }
+                                else if(ship instanceof ContainerShip)
+                                {
+                                    selectedTile.setIcon(new ImageIcon(MenuLibrary.iconPath + "containerShip.jpg"));
+                                }
+                                else
+                                {
+                                    selectedTile.setIcon(new ImageIcon(MenuLibrary.iconPath + "cargoShip.jpg"));
+                                }
+                            }
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    //the player has targeted a monster
+                    for(SeaMonster monster: arrayListMonster)
+                    {
+                        if(monster.getPosition().getColumn() == targetColumn && monster.getPosition().getRow() == targetRow)
+                        {
+                            selectedMonster = monster;
+                            selectedShip = null;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -443,7 +513,63 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-
+        if(e.getSource() instanceof MapTile)
+        {
+            if(selectedShip != null || selectedMonster != null)
+            {
+                //the user is dropping something they just dragged
+                //find where they dropped it
+                int dropx = selectedTile.getX() + MenuLibrary.MAP_ORIGIN_X;
+                int dropy = selectedTile.getY() + MenuLibrary.MAP_ORIGIN_Y;
+                
+                if(dropx >= 0 && dropx < (bufferMap.length * MenuLibrary.ICON_SIZE) && dropy >= 0 && dropy < (bufferMap[0].length * MenuLibrary.ICON_SIZE))
+                {
+                    //the user dropped the tile inside the map
+                    //determine which map column / row he wishes to drop it onto
+                    int dropCol = (selectedTile.getX() + (selectedTile.getWidth() / 2)) / MenuLibrary.ICON_SIZE;
+                    int dropRow = selectedTile.getY() / MenuLibrary.ICON_SIZE - 1;
+                    MapTile dropTile = bufferMap[dropCol][dropRow];
+                    
+                    //now, update the map tiles to reflect the drag/drop change
+                    if(dropTile.getSymbol() != '*')
+                    {
+                        //the ship / monster was moved to a tile of open water
+                        //swap the tiles' symbols and return the dragged tile to it's original position
+                        if(selectedShip != null)
+                        {
+                            for(CargoShip s: map.getArrayListShip())
+                            {
+                                if(selectedShip == s)
+                                {
+                                    s.setPosition(dropTile.getPosition());
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for(SeaMonster s: arrayListMonster)
+                            {
+                                if(selectedMonster == s)
+                                {
+                                    s.setPosition(dropTile.getPosition());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                //return the dragged tile to it's original position
+                selectedTile.setLocation(origx, origy);
+                
+                selectedTile = null;
+                selectedShip = null;
+                selectedMonster = null;
+                
+                this.repaint();
+            }
+        }
     }
 
     /**
@@ -479,7 +605,15 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mouseDragged(MouseEvent e) {
-
+        if(e.getSource() instanceof MapTile)
+        {
+            selectedTile = (MapTile)e.getSource();
+            char symbol = selectedTile.getSymbol();
+            if(symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P')
+            {
+                selectedTile.setLocation(selectedTile.getX() + e.getX() - startx, selectedTile.getY() + e.getY() - starty);
+            }
+        }
     }
 
     /**
@@ -1050,6 +1184,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         long randomValue = min + (long) (random.nextDouble() * (max - min));
         return randomValue;
     }
+    
+    public static int randomIntInRange(int min, int max)
+    {
+        Random random = new Random();
+        int randomValue = min + random.nextInt(max - min + 1);
+        return randomValue;
+    }
 
     public void initializeGUI() {
         //menu system set-up
@@ -1138,6 +1279,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(null);
         this.setLocation(300, 75);
+        
+        pane = getLayeredPane();
 
         stLabel = new JLabel("Status Terminal", JLabel.CENTER);
         stLabel.setBounds(0, 540, 510, 15);
@@ -1174,25 +1317,34 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
         button3 = new JButton(MenuLibrary.command3D);
         button3.setBounds(660, 615, 150, 75);
-
+        
         //gridLabel = new JLabel();
         //gridLabel.setBounds(0, 0, 810, 540);
         //gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
         //IMPORTANT: file paths should be changed and verified for the demonstration!!!
+        //geoMap = new JLabel[54][36];
         bufferMap = new MapTile[54][36];
         for (int c = 0; c < 54; c++) {
             for (int r = 0; r < 36; r++) {
+                //geoMap[c][r] = new JLabel();
+                //geoMap[c][r].setLayout(new BorderLayout());
                 bufferMap[c][r] = new MapTile(c, r);
+                bufferMap[c][r].setLocation(bufferMap[c][r].getX() + MenuLibrary.MAP_ORIGIN_X, bufferMap[c][r].getY() + MenuLibrary.MAP_ORIGIN_Y);
                 bufferMap[c][r].addMouseListener(this);
                 bufferMap[c][r].addMouseMotionListener(this);
-                this.add(bufferMap[c][r]);
+                pane.add(bufferMap[c][r], 1);
             }
         }
-
+        
+        backgroundLabel = new JLabel();
+        backgroundLabel.setBounds(0, 23, 810, 540);
+        backgroundLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "background.jpg"));
+        backgroundLabel.setOpaque(true);
+        pane.add(backgroundLabel);
+        
+        
         this.setJMenuBar(menuBar);
-        //frame.add(gridLabel);
-
-//        JScrollPane spStatusTerminal = new JScrollPane(statusTerminal);
+        
         this.add(stLabel);
         this.add(stScrollPane);
         this.add(mtLabel);
@@ -1201,6 +1353,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         this.add(button2);
         this.add(button3);
         this.setVisible(true);
+        this.requestFocus();
     }
 
     public ImageIcon symbolToIcon(char symbol) {
@@ -1215,24 +1368,24 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         } else if (symbol == 'P') {
             return new ImageIcon(MenuLibrary.iconPath + "emptyPier.jpg");
         } else if (symbol == 'S') {
-            return new ImageIcon(MenuLibrary.iconPath + "cargoShip.jpg");
+            return new ImageIcon(MenuLibrary.iconPath + "cargoShip.png");
         } else if (symbol == 'B') {
-            return new ImageIcon(MenuLibrary.iconPath + "containerShip.jpg");
+            return new ImageIcon(MenuLibrary.iconPath + "containerShip.png");
         } else if (symbol == 'T') {
-            return new ImageIcon(MenuLibrary.iconPath + "oilTanker.jpg");
+            return new ImageIcon(MenuLibrary.iconPath + "oilTanker.png");
         } else if (symbol == '$') {
             return new ImageIcon(MenuLibrary.iconPath + "dockedShip.jpg");
         } else if (symbol == 'X') {
             return new ImageIcon(MenuLibrary.iconPath + "unsafeShip.jpg");
         } else if (symbol == 'G') {
-            return new ImageIcon(MenuLibrary.iconPath + "godzilla.jpg");
+            return new ImageIcon(MenuLibrary.iconPath + "godzilla.png");
         } else if (symbol == 'K') {
-            return new ImageIcon(MenuLibrary.iconPath + "kraken.jpg");
+            return new ImageIcon(MenuLibrary.iconPath + "kraken.png");
         } else if (symbol == 'L') {
-            return new ImageIcon(MenuLibrary.iconPath + "leviathan.jpg");
+            return new ImageIcon(MenuLibrary.iconPath + "leviathan.png");
         } else if (symbol == 's') {
             //CAREFUL! Lowercase 's' is the sea serpent, upper-case 'S' is a cargo ship
-            return new ImageIcon(MenuLibrary.iconPath + "seaSerpent.jpg");
+            return new ImageIcon(MenuLibrary.iconPath + "seaSerpent.png");
         }
 
         //to make the compiler happy, add in a guaranteed return statement
@@ -1250,6 +1403,11 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         }
 
         super.paint(g);
+        
+        if(selectedTile != null)
+        {
+            selectedTile.paint(g);
+        }
 
         /*print map
          for (int row = 0; row < 36; row++) {

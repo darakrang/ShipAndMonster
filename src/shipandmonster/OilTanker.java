@@ -22,8 +22,9 @@ public class OilTanker extends CargoShip{
         this.length = 90;
         this.beam = 10;
         this.draft = 5;
-        this.longitude = -2.977838;
-        this.latitude = 53.410777;
+        this.position = new Position();
+        this.position.setLongitude(-2.977838);
+        this.position.setLatitude(53.410777);
         this.cargo = new Oil();
     }
 
@@ -41,8 +42,9 @@ public class OilTanker extends CargoShip{
         this.length = Double.parseDouble(token[4]);
         this.beam = Double.parseDouble(token[5]);
         this.draft = Double.parseDouble(token[6]);
-        this.longitude = Double.parseDouble(token[7]);
-        this.latitude = Double.parseDouble(token[8]);
+        this.position = new Position();
+        this.position.setLongitude(Double.parseDouble(token[7]));
+        this.position.setLatitude(Double.parseDouble(token[8]));
         if (token.length > 9) {
             this.cargo = new Cargo(token[9] + "," + token[10]);
         }

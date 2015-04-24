@@ -25,8 +25,7 @@ public class CargoShip {
     protected double length;
     protected double beam;
     protected double draft;
-    protected double longitude;
-    protected double latitude;
+    protected Position position;
     protected Cargo cargo;
     protected char dockSymbol;
 
@@ -41,8 +40,9 @@ public class CargoShip {
         this.length = 90;
         this.beam = 10;
         this.draft = 5;
-        this.longitude = -2.977838;
-        this.latitude = 53.410777;
+        this.position = new Position();
+        this.position.setLongitude(-2.977838);
+        this.position.setLatitude(53.410777);
         this.cargo = new Cargo();
 
         systemInput = new Scanner(System.in);
@@ -56,8 +56,9 @@ public class CargoShip {
         this.length = length;
         this.beam = beam;
         this.draft = draft;
-        this.longitude = longitude;
-        this.latitude = latitude;
+        this.position = new Position();
+        this.position.setLongitude(longitude);
+        this.position.setLatitude(latitude);
         this.cargo = cargo;
         
         systemInput = new Scanner(System.in);
@@ -73,8 +74,9 @@ public class CargoShip {
         this.length = Double.parseDouble(token[4]);
         this.beam = Double.parseDouble(token[5]);
         this.draft = Double.parseDouble(token[6]);
-        this.longitude = Double.parseDouble(token[7]);
-        this.latitude = Double.parseDouble(token[8]);
+        this.position = new Position();
+        this.position.setLongitude(Double.parseDouble(token[7]));
+        this.position.setLatitude(Double.parseDouble(token[8]));
         if (token.length > 9) {
             this.cargo = new Cargo(token[9] + "," + token[10]);
         }
@@ -299,28 +301,38 @@ public class CargoShip {
      * @return the longitude
      */
     public double getLongitude() {
-        return longitude;
+        return this.position.getLongitude();
     }
 
     /**
      * @param longitude the longitude to set
      */
     public void setLongitude(double longitude) {
-        this.longitude = longitude;
+        this.position.setLongitude(longitude);
     }
 
     /**
      * @return the latitude
      */
     public double getLatitude() {
-        return latitude;
+        return this.position.getLatitude();
     }
 
     /**
      * @param latitude the latitude to set
      */
     public void setLatitude(double latitude) {
-        this.latitude = latitude;
+        this.position.setLatitude(latitude);
+    }
+    
+    public Position getPosition()
+    {
+        return this.position;
+    }
+    
+    public void setPosition(Position p)
+    {
+        this.position = p;
     }
 
     /**

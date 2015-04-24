@@ -18,7 +18,12 @@ public class Position {
     public int y;
     
     public Position(){
-        
+        column = 0;
+        row = 0;
+        x = MenuLibrary.ICON_SIZE * column + MenuLibrary.MAP_ORIGIN_X;
+        y = MenuLibrary.ICON_SIZE * row + MenuLibrary.MAP_ORIGIN_Y;
+        longitude = MapConverter.col2lon(column);
+        latitude = MapConverter.row2lat(row);
     }
     
     public Position(int col, int row)
@@ -43,6 +48,8 @@ public class Position {
      */
     public void setLatitude(double latitude) {
         this.latitude = latitude;
+        row = MapConverter.lat2row(latitude);
+        y = MenuLibrary.ICON_SIZE * row + MenuLibrary.MAP_ORIGIN_Y;
     }
 
     /**
@@ -57,6 +64,8 @@ public class Position {
      */
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+        column = MapConverter.lon2col(longitude);
+        x = MenuLibrary.ICON_SIZE * column + MenuLibrary.MAP_ORIGIN_X;
     }
 
     /**
@@ -71,6 +80,8 @@ public class Position {
      */
     public void setColumn(int column) {
         this.column = column;
+        this.longitude = MapConverter.col2lon(column);
+        x = MenuLibrary.ICON_SIZE * column + MenuLibrary.MAP_ORIGIN_X;
     }
 
     /**
@@ -85,6 +96,8 @@ public class Position {
      */
     public void setRow(int row) {
         this.row = row;
+        this.latitude = MapConverter.row2lat(row);
+        y = MenuLibrary.ICON_SIZE * row + MenuLibrary.MAP_ORIGIN_Y;
     }
     
 }

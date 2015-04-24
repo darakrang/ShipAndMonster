@@ -18,7 +18,7 @@ public class MapTile extends JLabel
     {
         super();
         setLayout(new BorderLayout());
-        setBounds(MenuLibrary.ICON_SIZE*col + MenuLibrary.MAP_ORIGIN_X, MenuLibrary.ICON_SIZE*row + MenuLibrary.MAP_ORIGIN_Y, MenuLibrary.ICON_SIZE, MenuLibrary.ICON_SIZE);
+        setBounds(MenuLibrary.ICON_SIZE*col, MenuLibrary.ICON_SIZE*row, MenuLibrary.ICON_SIZE, MenuLibrary.ICON_SIZE);
         
         position = new Position(col, row);
         symbol = '.'; //set to water by default
@@ -91,7 +91,7 @@ public class MapTile extends JLabel
         }
         else if (symbol == 'K')
         {
-            description = "\"Hello, beastie!\" ~Jack Sparrow";
+            description = "Hello, beastie!";
         }
         else if (symbol == 'L')
         {

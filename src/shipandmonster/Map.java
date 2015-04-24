@@ -77,10 +77,10 @@ public class Map {
                 ship = new CargoShip();
             }
             while (flag) {
-                longitude = Main.randomDoubleInRange(-3.035000, -2.988478);
-                latitude = Main.randomDoubleInRange(53.396700, 53.457561);
-                col = MapConverter.lon2col(longitude);
-                row = MapConverter.lat2row(latitude);
+                col = Main.randomIntInRange(0, 54);
+                row = Main.randomIntInRange(0, 36);
+                longitude = MapConverter.col2lon(col);
+                latitude = MapConverter.row2lat(row);
 
                 // check: location of ship is out of map
                 if (row > 35 || col > 53) {
