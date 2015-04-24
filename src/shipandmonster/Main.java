@@ -291,10 +291,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 monster = new Leviathan();
             }
             while (flag) {
-                longitude = Main.randomDoubleInRange(-3.035000, -2.988478);
-                latitude = Main.randomDoubleInRange(53.396700, 53.457561);
-                col = MapConverter.lon2col(longitude);
-                row = MapConverter.lat2row(latitude);
+                col = Main.randomIntInRange(0, 53);
+                row = Main.randomIntInRange(0, 35);
 
                 // check: location of ship is out of map
                 if (row > 35 || col > 53) {
@@ -304,11 +302,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 switch (symbol) {
                     case '.':
                     case 'D':
-                        monster.setPosition(new Position());
-                        monster.getPosition().setLongitude(longitude);
-                        monster.getPosition().setLatitude(latitude);
-                        monster.getPosition().setRow(MapConverter.lon2col(longitude));
-                        monster.getPosition().setColumn(MapConverter.lat2row(latitude));
+                        monster.setPosition(new Position(col, row));
                         flag = false;
                         break;
                     default:
@@ -1096,8 +1090,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
         // combine monster and map
         for (SeaMonster monster : arrayListMonster) {
-            row = MapConverter.lat2row(monster.getPosition().getLatitude());
-            col = MapConverter.lon2col(monster.getPosition().getLongitude());
+            row = monster.getPosition().getRow();
+            col = monster.getPosition().getColumn();
             if (monster instanceof Kraken) {
                 map.getMapSymbol()[row][col] = 'K';
             } else if (monster instanceof Leviathan) {
