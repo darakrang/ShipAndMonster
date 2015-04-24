@@ -15,8 +15,9 @@ public class Pier extends Dock{
         this.depth = 15;
         this.length = 100;
         this.width = 6;
-        this.longitude = -3.013056;
-        this.latitude = 53.450606;
+        this.position = new Position();
+        this.position.setLongitude(-3.013056);
+        this.position.setLatitude(53.450606);
         this.symbol = 'P';
     }
 
@@ -33,8 +34,9 @@ public class Pier extends Dock{
         this.length = Double.parseDouble(token[3]);
         this.width = Double.parseDouble(token[4]);
         this.depth = Double.parseDouble(token[5]);
-        this.longitude = Double.parseDouble(token[6]);
-        this.latitude = Double.parseDouble(token[7]);
+        this.position = new Position();
+        this.position.setLongitude(Double.parseDouble(token[6]));
+        this.position.setLatitude(Double.parseDouble(token[7]));
     }
     
     /**

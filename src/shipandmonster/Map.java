@@ -51,12 +51,14 @@ public class Map {
     }
 
     //gererate ships and add it to map object
-    public void generateShip(int shipNumber) {
+    public void generateShip(int shipNumber, ArrayList<Dock> arrayListDock) {
 //        int shipNumber = 0;
         double longitude;
         double latitude;
-        int col, row, counter;
+        int col, row, colDock, rowDock, counter;
         char symbol;
+        ArrayList<Dock> arrayListTargetDock = new ArrayList<Dock>();
+        Dock targetDock;
         boolean flag = true;
         Random random = new Random();
 
@@ -76,6 +78,25 @@ public class Map {
             } else {
                 ship = new CargoShip();
             }
+            //find the all right target dock
+            if (!(arrayListTargetDock.isEmpty())) {
+                arrayListTargetDock.clear();
+            }
+            for (Dock dock : arrayListDock) {
+                if (ship instanceof OilTanker && dock instanceof Pier && dock.isTargeted() == false) {
+                    arrayListTargetDock.add(dock);
+                } else if (ship instanceof ContainerShip && dock instanceof Crane && dock.isTargeted() == false) {
+                    arrayListTargetDock.add(dock);
+                } else if (!(ship instanceof OilTanker)
+                        && !(ship instanceof ContainerShip)
+                        && !(dock instanceof Pier)
+                        && !(dock instanceof Crane)
+                        && dock.isTargeted() == false) {
+                    {
+                        arrayListTargetDock.add(dock);
+                    }
+                }
+            }
             while (flag) {
                 col = Main.randomIntInRange(0, 54);
                 row = Main.randomIntInRange(0, 36);
@@ -91,12 +112,38 @@ public class Map {
                     case water:
                     case emptyDock:
                         ship.setLongitude(longitude);
-                        ship.setLatitude(latitude);                        
+                        ship.setLatitude(latitude);
                         flag = false;
                         break;
                     default:
                         flag = true;
                         break;
+                }
+
+                //find the nearest dock
+                //Set target Dock
+                for (Dock dock2 : arrayListTargetDock) {
+                    int distanceRow, distanceCol, totalDistance;
+                    int targetRow, targetCol, totalDistanceTarget;
+                    colDock = MapConverter.lon2col(dock2.getLongitude());
+                    rowDock = MapConverter.lat2row(dock2.getLatitude());
+                    distanceCol = Math.abs(colDock - col);
+                    distanceRow = Math.abs(rowDock - row);
+                    totalDistance = distanceCol + distanceRow;
+
+                    if (ship.getTargetDock() == null) {
+                        ship.setTargetDock(dock2);
+                        dock2.setTargeted(true);
+                    } else if (!dock2.isTargeted()) {
+                        targetCol = Math.abs(MapConverter.lon2col(ship.getTargetDock().getLongitude()) - col);
+                        targetRow = Math.abs(MapConverter.lat2row(ship.getTargetDock().getLatitude()) - row);
+                        totalDistanceTarget = targetCol + targetRow;
+                        if (totalDistanceTarget >= totalDistance) {
+                            ship.getTargetDock().setTargeted(false);
+                            ship.setTargetDock(dock2);
+                            dock2.setTargeted(true);
+                        }
+                    }
                 }
             }
 
@@ -148,14 +195,13 @@ public class Map {
         return result;
     }
 
-    
-    
     //update Ship Property
     public void updateShipProperty(int index, int shipProperty) {
         CargoShip ship = arrayListShip.get(index);
         ship.updateShipProperty(shipProperty);
     }
 //    
+
     /**
      * @return the mapSymbol
      */
@@ -169,6 +215,7 @@ public class Map {
     public void setMapSymbol(char[][] mapSymbol) {
         this.mapSymbol = mapSymbol;
     }
+
     /**
      * @return the port
      */

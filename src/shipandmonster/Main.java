@@ -63,7 +63,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private CargoShip selectedShip;
     private SeaMonster selectedMonster;
     private int startx, starty, startLayer, origx, origy;
-    
+
     //here are the GUI components [Hunter]
     private JLayeredPane pane;
     private JLabel stLabel, mtLabel;
@@ -151,7 +151,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() instanceof JMenuItem || e.getSource() instanceof JButton) {
             String command = e.getActionCommand();
-
+            Position newTargetPosition;
             switch (command) {
                 case MenuLibrary.commandExit:
                     System.exit(0);
@@ -161,7 +161,10 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     break;
                 case MenuLibrary.commandGenerateShips:
                     String input = JOptionPane.showInputDialog(null, "Enter Number of Ship:", "Generate Ships", JOptionPane.INFORMATION_MESSAGE);
-                    map.generateShip(Integer.valueOf(input));
+                    map.generateShip(Integer.valueOf(input), port.getArrayListDock());
+                    for (CargoShip s : map.getArrayListShip()) {
+                        bufferMap[s.getPosition().getColumn()][s.getPosition().getRow()].setTargetPosition(s.getTargetDock().getPosition());
+                    }
                     break;
                 case MenuLibrary.commandUpdateShips:
                     UpdateShipListForm frmShip = new UpdateShipListForm();
@@ -170,14 +173,19 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                         @Override
                         public void windowClosed(WindowEvent e) {
                             System.out.println("jdialog window closed");
-                            try {
-                                refreshMapData();
-                            } catch (FileNotFoundException ex) {
-                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+//                            try {
+////                                refreshMapData();
+////                                generateTargetDockForShip(s);
+////                                newTargetPosition = new Position();
+////                                newTargetPosition.setColumn(MapConverter.lon2col(s.getTargetDock().getLongitude()));
+////                                newTargetPosition.setRow(MapConverter.lat2row(s.getTargetDock().getLatitude()));
+////                                dropTile.setTargetPosition(newTargetPosition);
+//                            } catch (FileNotFoundException ex) {
+//                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
                         }
                     });
-                    frmShip.ShowDialog(map.getArrayListShip());
+                    frmShip.ShowDialog(map.getArrayListShip(), port.getArrayListDock(), bufferMap);
                     break;
                 case MenuLibrary.commandDisplayShips:
                     statusTerminal.setText("");//clear terminal
@@ -324,6 +332,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             arrayListMonster.add(monster);
         }
 
+//        for (SeaMonster s : arrayListMonster) {
+//            bufferMap[s.getPosition().getColumn()][s.getPosition().getRow()].setTargetPosition(s.getTargetShip().getPosition());
+//        }
         this.repaint();
     }
 
@@ -415,9 +426,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         } else {
             for (CargoShip ship : map.getArrayListShip()) {
                 statusTerminal.append(ship.displayShip());
+                statusTerminal.append("\n");
             }
-            System.out.println();
-            System.out.println();
         }
     }
 
@@ -464,61 +474,46 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mousePressed(MouseEvent e) {
-        if(e.getSource() instanceof MapTile)
-        {
-            selectedTile = (MapTile)e.getSource();
+        if (e.getSource() instanceof MapTile) {
+            selectedTile = (MapTile) e.getSource();
             char symbol = selectedTile.getSymbol();
-            
-            if(symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P')
-            {
+
+            if (symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P') {
                 //the user has picked up a ship or monster
                 startx = e.getX();
                 starty = e.getY();
                 origx = selectedTile.getX();
                 origy = selectedTile.getY();
-                
+
                 startLayer = pane.getLayer(selectedTile);
                 pane.moveToFront(selectedTile);
-                
+
                 //check if it is a docked ship
                 int targetColumn = selectedTile.getPosition().getColumn();
                 int targetRow = selectedTile.getPosition().getRow();
-                if(symbol == '$' || symbol == 'S' || symbol == 'B' || symbol == 'T' || symbol == 'X')
-                {
-                    for(CargoShip ship: map.getArrayListShip())
-                    {
-                        if(ship.getPosition().getColumn() == targetColumn && ship.getPosition().getRow() == targetRow)
-                        {
+                if (symbol == '$' || symbol == 'S' || symbol == 'B' || symbol == 'T' || symbol == 'X') {
+                    for (CargoShip ship : map.getArrayListShip()) {
+                        if (ship.getPosition().getColumn() == targetColumn && ship.getPosition().getRow() == targetRow) {
                             selectedShip = ship;
                             selectedMonster = null;
-                            
+
                             //if the ship is on top of another ship, or in a dock, change the image to just the ship
-                            if(symbol == '$' || symbol == 'X')
-                            {
-                                if(ship instanceof OilTanker)
-                                {
+                            if (symbol == '$' || symbol == 'X') {
+                                if (ship instanceof OilTanker) {
                                     selectedTile.setIcon(new ImageIcon(MenuLibrary.iconPath + "oilTanker.jpg"));
-                                }
-                                else if(ship instanceof ContainerShip)
-                                {
+                                } else if (ship instanceof ContainerShip) {
                                     selectedTile.setIcon(new ImageIcon(MenuLibrary.iconPath + "containerShip.jpg"));
-                                }
-                                else
-                                {
+                                } else {
                                     selectedTile.setIcon(new ImageIcon(MenuLibrary.iconPath + "cargoShip.jpg"));
                                 }
                             }
                             return;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     //the player has targeted a monster
-                    for(SeaMonster monster: arrayListMonster)
-                    {
-                        if(monster.getPosition().getColumn() == targetColumn && monster.getPosition().getRow() == targetRow)
-                        {
+                    for (SeaMonster monster : arrayListMonster) {
+                        if (monster.getPosition().getColumn() == targetColumn && monster.getPosition().getRow() == targetRow) {
                             selectedMonster = monster;
                             selectedShip = null;
                             return;
@@ -537,45 +532,40 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-        if(e.getSource() instanceof MapTile)
-        {
-            if(selectedShip != null || selectedMonster != null)
-            {
+        if (e.getSource() instanceof MapTile) {
+            if (selectedShip != null || selectedMonster != null) {
                 //the user is dropping something they just dragged
                 //find where they dropped it
                 int dropx = selectedTile.getX() + MenuLibrary.MAP_ORIGIN_X;
                 int dropy = selectedTile.getY() + MenuLibrary.MAP_ORIGIN_Y;
-                
-                if(dropx >= 0 && dropx < (bufferMap.length * MenuLibrary.ICON_SIZE) && dropy >= 0 && dropy < (bufferMap[0].length * MenuLibrary.ICON_SIZE))
-                {
+
+                if (dropx >= 0 && dropx < (bufferMap.length * MenuLibrary.ICON_SIZE) && dropy >= 0 && dropy < (bufferMap[0].length * MenuLibrary.ICON_SIZE)) {
                     //the user dropped the tile inside the map
                     //determine which map column / row he wishes to drop it onto
                     int dropCol = (selectedTile.getX() + (selectedTile.getWidth() / 2)) / MenuLibrary.ICON_SIZE;
                     int dropRow = selectedTile.getY() / MenuLibrary.ICON_SIZE - 1;
                     MapTile dropTile = bufferMap[dropCol][dropRow];
-                    
+                    Position newTargetPosition;
+
                     //now, update the map tiles to reflect the drag/drop change
-                    if(dropTile.getSymbol() != '*')
-                    {
+                    if (dropTile.getSymbol() != '*') {
                         //the ship / monster was moved to a tile of open water
                         //swap the tiles' symbols and return the dragged tile to it's original position
-                        if(selectedShip != null)
-                        {
-                            for(CargoShip s: map.getArrayListShip())
-                            {
-                                if(selectedShip == s)
-                                {
+                        if (selectedShip != null) {
+                            for (CargoShip s : map.getArrayListShip()) {
+                                if (selectedShip == s) {
                                     s.setPosition(dropTile.getPosition());
+                                    generateTargetDockForShip(s);
+                                    newTargetPosition = new Position();
+                                    newTargetPosition.setColumn(MapConverter.lon2col(s.getTargetDock().getLongitude()));
+                                    newTargetPosition.setRow(MapConverter.lat2row(s.getTargetDock().getLatitude()));
+                                    dropTile.setTargetPosition(newTargetPosition);
                                     break;
                                 }
                             }
-                        }
-                        else
-                        {
-                            for(SeaMonster s: arrayListMonster)
-                            {
-                                if(selectedMonster == s)
-                                {
+                        } else {
+                            for (SeaMonster s : arrayListMonster) {
+                                if (selectedMonster == s) {
                                     s.setPosition(dropTile.getPosition());
                                     break;
                                 }
@@ -583,15 +573,66 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                         }
                     }
                 }
-                
+
                 //return the dragged tile to it's original position
                 selectedTile.setLocation(origx, origy);
-                
+
                 selectedTile = null;
                 selectedShip = null;
                 selectedMonster = null;
-                
+
+                updateAI();
                 this.repaint();
+            }
+        }
+    }
+
+    //generate Target Dock For Ship
+    public void generateTargetDockForShip(CargoShip ship) {
+        ArrayList<Dock> arrayListTargetDock = new ArrayList<Dock>();
+        int col, row, colDock, rowDock;
+        col = MapConverter.lon2col(ship.getLongitude());
+        row = MapConverter.lat2row(ship.getLatitude());
+        //get the right docks for the ship
+        for (Dock dock : port.getArrayListDock()) {
+            if (ship instanceof OilTanker && dock instanceof Pier && dock.isTargeted() == false) {
+                arrayListTargetDock.add(dock);
+            } else if (ship instanceof ContainerShip && dock instanceof Crane && dock.isTargeted() == false) {
+                arrayListTargetDock.add(dock);
+            } else if (!(ship instanceof OilTanker)
+                    && !(ship instanceof ContainerShip)
+                    && !(dock instanceof Pier)
+                    && !(dock instanceof Crane)
+                    && dock.isTargeted() == false) {
+                {
+                    arrayListTargetDock.add(dock);
+                }
+            }
+        }
+
+        //find the nearest dock
+        //Set target Dock
+        for (Dock dock2 : arrayListTargetDock) {
+            int distanceRow, distanceCol, totalDistance;
+            int targetRow, targetCol, totalDistanceTarget;
+            colDock = MapConverter.lon2col(dock2.getLongitude());
+            rowDock = MapConverter.lat2row(dock2.getLatitude());
+            distanceCol = Math.abs(colDock - col);
+            distanceRow = Math.abs(rowDock - row);
+            totalDistance = distanceCol + distanceRow;
+
+            if (ship.getTargetDock() == null) {
+                ship.setTargetDock(dock2);
+                dock2.setTargeted(true);
+            } else if (!dock2.isTargeted()) {
+                targetCol = Math.abs(MapConverter.lon2col(ship.getTargetDock().getLongitude()) - col);
+                targetRow = Math.abs(MapConverter.lat2row(ship.getTargetDock().getLatitude()) - row);
+                totalDistanceTarget = targetCol + targetRow;
+                if (totalDistanceTarget >= totalDistance) {
+                    ship.getTargetDock().setTargeted(false);
+                    ship.setTargetDock(dock2);
+                    dock2.setTargeted(true);
+                }
             }
         }
     }
@@ -606,7 +647,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     public void mouseEntered(MouseEvent e) {
         if (e.getSource() instanceof MapTile) {
             MapTile tempTile = (MapTile) e.getSource();
-            mouseTerminal.setText(String.format("Column: %d\nRow: %d\n%s", tempTile.getPosition().getColumn(), tempTile.getPosition().getRow(), tempTile.getDescription()));
+
+            if (tempTile.getTargetPosition() != null) {
+                mouseTerminal.setText(String.format("Column: %d\t\tTarget Column: %d\nRow: %d\t\tTarget Row: %d\n%s", tempTile.getPosition().getColumn(), tempTile.getTargetPosition().getColumn(), tempTile.getPosition().getRow(), tempTile.getTargetPosition().getRow(), tempTile.getDescription()));
+
+            } else {
+                mouseTerminal.setText(String.format("Column: %d\nRow: %d\n%s", tempTile.getPosition().getColumn(), tempTile.getPosition().getRow(), tempTile.getDescription()));
+            }
         }
     }
 
@@ -629,13 +676,12 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
      */
     @Override
     public void mouseDragged(MouseEvent e) {
-        if(e.getSource() instanceof MapTile)
-        {
-            selectedTile = (MapTile)e.getSource();
+        if (e.getSource() instanceof MapTile) {
+            selectedTile = (MapTile) e.getSource();
             char symbol = selectedTile.getSymbol();
-            if(symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P')
-            {
+            if (symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P') {
                 selectedTile.setLocation(selectedTile.getX() + e.getX() - startx, selectedTile.getY() + e.getY() - starty);
+                System.out.println(selectedTile.getX() + e.getX() - startx);
             }
         }
     }
@@ -1208,9 +1254,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         long randomValue = min + (long) (random.nextDouble() * (max - min));
         return randomValue;
     }
-    
-    public static int randomIntInRange(int min, int max)
-    {
+
+    public static int randomIntInRange(int min, int max) {
         Random random = new Random();
         int randomValue = min + random.nextInt(max - min + 1);
         return randomValue;
@@ -1302,8 +1347,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(null);
-        this.setLocation(300, 75);
-        
+        this.setLocation(300, 0);
+
         pane = getLayeredPane();
 
         stLabel = new JLabel("Status Terminal", JLabel.CENTER);
@@ -1322,13 +1367,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         stScrollPane.setBounds(0, 555, 512, 140);
 
         mtLabel = new JLabel("Mouse Terminal", JLabel.CENTER);
-        mtLabel.setBounds(510, 615, 150, 15);
+        mtLabel.setBounds(510, 615, 300, 15);
         mtLabel.setBackground(Color.white);
         mtLabel.setBorder(BorderFactory.createLineBorder(Color.black));
         mtLabel.setOpaque(true);
 
         mouseTerminal = new JTextArea("");
-        mouseTerminal.setBounds(510, 630, 150, 60);
+        mouseTerminal.setBounds(510, 630, 300, 60);
         mouseTerminal.setEditable(false);
         mouseTerminal.setOpaque(true);
         mouseTerminal.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -1339,9 +1384,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         button2 = new JButton(MenuLibrary.commandStop);
         button2.setBounds(660, 540, 150, 75);
 
-        button3 = new JButton(MenuLibrary.command3D);
-        button3.setBounds(660, 615, 150, 75);
-        
+        //button3 = new JButton(MenuLibrary.command3D);
+        //button3.setBounds(660, 615, 150, 75);
         //gridLabel = new JLabel();
         //gridLabel.setBounds(0, 0, 810, 540);
         //gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
@@ -1359,23 +1403,22 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 pane.add(bufferMap[c][r], 1);
             }
         }
-        
+
         backgroundLabel = new JLabel();
         backgroundLabel.setBounds(0, 23, 810, 540);
         backgroundLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "background.jpg"));
         backgroundLabel.setOpaque(true);
         pane.add(backgroundLabel);
-        
-        
+
         this.setJMenuBar(menuBar);
-        
+
         this.add(stLabel);
         this.add(stScrollPane);
         this.add(mtLabel);
         this.add(mouseTerminal);
         this.add(button1);
         this.add(button2);
-        this.add(button3);
+        //this.add(button3);
         this.setVisible(true);
         this.requestFocus();
     }
@@ -1427,9 +1470,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         }
 
         super.paint(g);
-        
-        if(selectedTile != null)
-        {
+
+        if (selectedTile != null) {
             selectedTile.paint(g);
         }
 
@@ -1439,5 +1481,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
          g.drawImage(bufferMap[col][row], MenuLibrary.ICON_SIZE*col + MenuLibrary.MAP_ORIGIN_X, MenuLibrary.ICON_SIZE*row + MenuLibrary.MAP_ORIGIN_Y, this);
          }
          }*/
+    }
+
+    public void updateAI() {
+
     }
 }

@@ -63,6 +63,7 @@ public class OilTanker extends CargoShip{
         result += String.format("Capacity: %.0f tons\n", this.getCargoCapacity());
         result += "Location (" + this.getLongitude() + "," + this.getLatitude() + ")";
         result += String.format("\nLocation (%d,%d)\n", MapConverter.lon2col(this.getLongitude()), MapConverter.lat2row(this.getLatitude()));
+        result += String.format("Target Location (%d,%d)\n", MapConverter.lon2col(this.getTargetDock().getLongitude()), MapConverter.lat2row(this.getTargetDock().getLatitude()));
         if (this.getCargo() != null) {
             result += this.getCargo().display();
         } else {

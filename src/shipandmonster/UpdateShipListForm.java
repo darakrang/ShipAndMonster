@@ -39,9 +39,10 @@ public class UpdateShipListForm extends JDialog implements ActionListener,ListSe
     public static final String commandUpdate="Update";
     public static final String commandCancel="Cancel";
     
-    ArrayList<String> listData;
-    
-    private ArrayList<CargoShip> arrayListShip;    
+    ArrayList<String> listData;    
+    private ArrayList<CargoShip> arrayListShipData;
+    private ArrayList<Dock> arrayListDockData;
+    MapTile[][] bufferMapData;
     
     public UpdateShipListForm()
     {
@@ -63,8 +64,10 @@ public class UpdateShipListForm extends JDialog implements ActionListener,ListSe
         makeDialog();
     }
     
-    public void ShowDialog(ArrayList<CargoShip> shipList) {
-        arrayListShip = shipList;
+    public void ShowDialog(ArrayList<CargoShip> shipList,ArrayList<Dock> arrayListDock, MapTile[][] bufferMap) {
+        arrayListShipData = shipList;
+        arrayListDockData = arrayListDock;
+        this.bufferMapData = bufferMap;
         
         loadList(shipList);
         
@@ -109,7 +112,7 @@ public class UpdateShipListForm extends JDialog implements ActionListener,ListSe
         {
             int index=list.getSelectedIndex();            
             UpdateShipForm frm = new UpdateShipForm();
-            frm.ShowDiaglog(index, arrayListShip, this);
+            frm.ShowDiaglog(index, arrayListShipData,arrayListDockData, bufferMapData, this);
             this.setVisible(false);
         }
         else if (e.getActionCommand()==commandCancel)

@@ -25,16 +25,16 @@ import javax.swing.JTextField;
  * @author Dara
  */
 public class UpdateShipForm extends JDialog implements ActionListener {
-    
+
     JButton buttonUpdate;
     JButton buttonCancel;
-    
+
     JPanel panelButton;
     JPanel panelTextField;
-    
+
     JPanel labelPanel;
     JPanel fieldPanel;
-    
+
     private JLabel lblName = new JLabel("Name");
     private JLabel lblCountry = new JLabel("Country");
     private JLabel lblTransponder = new JLabel("Transponder");
@@ -45,7 +45,7 @@ public class UpdateShipForm extends JDialog implements ActionListener {
     private JLabel lblColumn = new JLabel("Column");
     private JLabel lblRow = new JLabel("Row");
     private JLabel lblCargo = new JLabel("Cargo");
-    
+
     private JTextField txtName;
     private JTextField txtCountry;
     private JTextField txtTransponder;
@@ -56,19 +56,20 @@ public class UpdateShipForm extends JDialog implements ActionListener {
     private JTextField txtColumn;
     private JTextField txtRow;
     private JButton btnCargo = new JButton("Load Cargo");
-    
+
     public static final String commandUpdate = "Update";
     public static final String commandCancel = "Cancel";
-    
 
-    
     private CargoShip shipData;
     private ArrayList<CargoShip> arrayListShip;
     private Cargo cargoData;
     private int indexShipData;
+    private ArrayList<Dock> arrayListDockData;
     private JDialog parent;
+    private MapTile[][] bufferMapData;
+
     public UpdateShipForm() {
-        
+
         panelButton = new JPanel();
         panelTextField = new JPanel();
 
@@ -90,29 +91,31 @@ public class UpdateShipForm extends JDialog implements ActionListener {
         txtRow = new JTextField();
 
         btnCargo.addActionListener(this);
-        
+
         buttonUpdate = new JButton(commandUpdate);
         buttonUpdate.addActionListener(this);
-        
+
         buttonCancel = new JButton(commandCancel);
         buttonCancel.addActionListener(this);
-                
+
         makeDialog();
     }
-    
-    public void ShowDiaglog(int indexShip, ArrayList<CargoShip> shipList, JDialog parent) {
+
+    public void ShowDiaglog(int indexShip, ArrayList<CargoShip> shipList, ArrayList<Dock> arrayListDock, MapTile[][] bufferMap, JDialog parent) {
         this.shipData = shipList.get(indexShip);
         this.arrayListShip = shipList;
         this.indexShipData = indexShip;
         this.cargoData = this.shipData.getCargo();
+        this.bufferMapData = bufferMap;
+        this.arrayListDockData = arrayListDock;
         this.parent = parent;
-        
+
         loadFormData(shipList.get(indexShip));
         this.setSize(new Dimension(300, 300));
         Utilities.centerOnScreen(this, true);
         this.setVisible(true);
     }
-    
+
     public void makeDialog() {
         //Dialog Layout
         this.setLayout(new BorderLayout());
@@ -145,13 +148,13 @@ public class UpdateShipForm extends JDialog implements ActionListener {
         panelTextField.add(this.txtRow);
         panelTextField.add(this.lblCargo);
         panelTextField.add(this.btnCargo);
-        
+
         this.add(panelTextField, BorderLayout.CENTER);
-        
+
     }
-    
+
     public void loadFormData(CargoShip ship) {
-        
+
         this.txtName.setText(ship.getName());
         this.txtCountry.setText(ship.getCountry());
         this.txtTransponder.setText(String.valueOf(ship.getTransponder()));
@@ -161,13 +164,20 @@ public class UpdateShipForm extends JDialog implements ActionListener {
         this.txtBeam.setText(String.valueOf(ship.getBeam()));
         this.txtColumn.setText(String.valueOf(MapConverter.lon2col(ship.getLongitude())));
         this.txtRow.setText(String.valueOf(MapConverter.lat2row(ship.getLatitude())));
-        
+
     }
-        
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getActionCommand() == commandUpdate) {
+            Position newTargetPosition;
+            int col = Integer.valueOf(MapConverter.lon2col(shipData.getLongitude()));
+            int row = Integer.valueOf(MapConverter.lat2row(shipData.getLatitude()));
+
+//            bufferMapData[col][row] = new MapTile(col, row);
+            bufferMapData[col][row].setLocation(bufferMapData[col][row].getX() + MenuLibrary.MAP_ORIGIN_X, bufferMapData[col][row].getY() + MenuLibrary.MAP_ORIGIN_Y);
+
             shipData.setName(this.txtName.getText());
             shipData.setCountry(this.txtCountry.getText());
             shipData.setTransponder(Long.valueOf(this.txtTransponder.getText()));
@@ -177,18 +187,83 @@ public class UpdateShipForm extends JDialog implements ActionListener {
             shipData.setBeam(Double.valueOf(this.txtBeam.getText()));
             shipData.setLongitude(MapConverter.col2lon(Integer.valueOf(this.txtColumn.getText())));
             shipData.setLatitude(MapConverter.row2lat(Integer.valueOf(this.txtRow.getText())));
+
+            
+            int newCol = Integer.valueOf(this.txtColumn.getText());
+            int newRow = Integer.valueOf(this.txtRow.getText());
+
+//            bufferMapData[col][row] = new MapTile(col, row);
+            bufferMapData[col][row].setLocation(bufferMapData[newCol][newRow].getX() + MenuLibrary.MAP_ORIGIN_X, bufferMapData[newCol][newRow].getY() + MenuLibrary.MAP_ORIGIN_Y);
+
+//            MapTile dropTile = bufferMapData[col][row];
+            generateTargetDockForShip(shipData);
+            newTargetPosition = new Position();
+            newTargetPosition.setColumn(MapConverter.lon2col(shipData.getTargetDock().getLongitude()));
+            newTargetPosition.setRow(MapConverter.lat2row(shipData.getTargetDock().getLatitude()));
+            bufferMapData[col][row].setTargetPosition(newTargetPosition);
+
             parent.setVisible(true);
+
             this.dispose();
         } else if (e.getActionCommand() == commandCancel) {
-            UpdateShipListForm frm = new UpdateShipListForm();
-            frm.ShowDialog(this.arrayListShip);
+//            UpdateShipListForm frm = new UpdateShipListForm();
+//            frm.ShowDialog(this.arrayListShip);
+            this.setVisible(true);
             this.dispose();
         } else if (e.getActionCommand() == "Load Cargo") {
             UpdateCargoForm frm = new UpdateCargoForm();
-            frm.ShowDiaglog(this.cargoData,this.indexShipData,this.arrayListShip,this);
+            frm.ShowDiaglog(this.cargoData, this.indexShipData, this.arrayListShip, this);
             this.dispose();
         }
-        
     }
-    
+
+    //generate Target Dock For Ship
+    public void generateTargetDockForShip(CargoShip ship) {
+        ArrayList<Dock> arrayListTargetDock = new ArrayList<Dock>();
+        int col, row, colDock, rowDock;
+        col = MapConverter.lon2col(ship.getLongitude());
+        row = MapConverter.lat2row(ship.getLatitude());
+        //get the right docks for the ship
+        for (Dock dock : this.arrayListDockData) {
+            if (ship instanceof OilTanker && dock instanceof Pier && dock.isTargeted() == false) {
+                arrayListTargetDock.add(dock);
+            } else if (ship instanceof ContainerShip && dock instanceof Crane && dock.isTargeted() == false) {
+                arrayListTargetDock.add(dock);
+            } else if (!(ship instanceof OilTanker)
+                    && !(ship instanceof ContainerShip)
+                    && !(dock instanceof Pier)
+                    && !(dock instanceof Crane)
+                    && dock.isTargeted() == false) {
+                {
+                    arrayListTargetDock.add(dock);
+                }
+            }
+        }
+
+        //find the nearest dock
+        //Set target Dock
+        for (Dock dock2 : arrayListTargetDock) {
+            int distanceRow, distanceCol, totalDistance;
+            int targetRow, targetCol, totalDistanceTarget;
+            colDock = MapConverter.lon2col(dock2.getLongitude());
+            rowDock = MapConverter.lat2row(dock2.getLatitude());
+            distanceCol = Math.abs(colDock - col);
+            distanceRow = Math.abs(rowDock - row);
+            totalDistance = distanceCol + distanceRow;
+
+            if (ship.getTargetDock() == null) {
+                ship.setTargetDock(dock2);
+                dock2.setTargeted(true);
+            } else if (!dock2.isTargeted()) {
+                targetCol = Math.abs(MapConverter.lon2col(ship.getTargetDock().getLongitude()) - col);
+                targetRow = Math.abs(MapConverter.lat2row(ship.getTargetDock().getLatitude()) - row);
+                totalDistanceTarget = targetCol + targetRow;
+                if (totalDistanceTarget >= totalDistance) {
+                    ship.getTargetDock().setTargeted(false);
+                    ship.setTargetDock(dock2);
+                    dock2.setTargeted(true);
+                }
+            }
+        }
+    }
 }

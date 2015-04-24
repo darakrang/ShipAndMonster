@@ -23,9 +23,9 @@ public class Dock {
     protected double depth;
     protected double length;
     protected double width;
-    protected double longitude;
-    protected double latitude;
+    protected Position position;
     protected char symbol;
+    protected boolean targeted;
 
     private Scanner systemInput;
 
@@ -37,8 +37,9 @@ public class Dock {
         this.depth = 15;
         this.length = 100;
         this.width = 6;
-        this.longitude = -2.977838;
-        this.latitude = 53.410777;
+        this.position = new Position();
+        this.position.setLongitude(-2.977838);
+        this.position.setLatitude(53.410777);
         this.symbol = 'D';
         
         systemInput = new Scanner(System.in);
@@ -51,8 +52,9 @@ public class Dock {
         this.depth = depth;
         this.length = length;
         this.width = width;
-        this.longitude = longitude;
-        this.latitude = latitude;
+        this.position = new Position();
+        this.position.setLongitude(longitude);
+        this.position.setLatitude(latitude);
         
         systemInput = new Scanner(System.in);
     }
@@ -66,8 +68,9 @@ public class Dock {
         this.length = Double.parseDouble(token[3]);
         this.width = Double.parseDouble(token[4]);
         this.depth = Double.parseDouble(token[5]);
-        this.longitude = Double.parseDouble(token[6]);
-        this.latitude = Double.parseDouble(token[7]);
+        this.position = new Position();
+        this.position.setLongitude(Double.parseDouble(token[6]));
+        this.position.setLatitude(Double.parseDouble(token[7]));
         systemInput = new Scanner(System.in);
     }
 
@@ -151,6 +154,16 @@ public class Dock {
         return string;
     }
 
+    public Position getPosition()
+    {
+        return this.position;
+    }
+    
+    public void setPosition(Position p)
+    {
+        this.position = p;
+    }
+    
     /**
      * @return the name
      */
@@ -239,28 +252,28 @@ public class Dock {
      * @return the longitude
      */
     public double getLongitude() {
-        return longitude;
+        return this.position.getLongitude();
     }
 
     /**
      * @param longitude the longitude to set
      */
     public void setLongitude(double longitude) {
-        this.longitude = longitude;
+        this.position.setLongitude(longitude);
     }
 
     /**
      * @return the latitude
      */
     public double getLatitude() {
-        return latitude;
+        return this.position.getLatitude();
     }
 
     /**
      * @param latitude the latitude to set
      */
     public void setLatitude(double latitude) {
-        this.latitude = latitude;
+        this.position.setLatitude(latitude);
     }
 
     /**
@@ -276,4 +289,20 @@ public class Dock {
     public void setSymbol(char symbol) {
         this.symbol = symbol;
     }
+
+    /**
+     * @return the targeted
+     */
+    public boolean isTargeted() {
+        return targeted;
+    }
+
+    /**
+     * @param targeted the targeted to set
+     */
+    public void setTargeted(boolean targeted) {
+        this.targeted = targeted;
+    }
+
+   
 }

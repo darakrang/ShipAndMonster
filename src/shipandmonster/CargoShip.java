@@ -28,6 +28,7 @@ public class CargoShip {
     protected Position position;
     protected Cargo cargo;
     protected char dockSymbol;
+    protected Dock targetDock;
 
     private Scanner systemInput;
 
@@ -105,7 +106,7 @@ public class CargoShip {
     }
     
     public String displayShip() {
-        String report = new String();
+        String report = "";
         report = ("Cargo Ship: " + this.getName()+"\n");
         report +=("Country of Origin: " + this.getCountry()+"\n");
         report +=("Transponder: " + this.getTransponder()+"\n");
@@ -115,10 +116,11 @@ public class CargoShip {
         report += String.format("Capacity: %.0f tons\n", this.getCargoCapacity());
         report +=("Location (" + this.getLongitude() + "," + this.getLatitude() + ")"+"\n");
         report += String.format("Location (%d,%d)\n", MapConverter.lon2col(this.getLongitude()), MapConverter.lat2row(this.getLatitude()));
+        report += String.format("Target Location (%d,%d)\n", MapConverter.lon2col(this.getTargetDock().getLongitude()), MapConverter.lat2row(this.getTargetDock().getLatitude()));
         if (this.getCargo() != null) {
             report += this.getCargo().display();
         } else {
-            report +=("The cargo is already unloaded"+"\n");
+            report +=("The cargo is already unloaded"+"\n\n");
         }
         return report;
     }
@@ -361,5 +363,19 @@ public class CargoShip {
      */
     public void setDockSymbol(char dockSymbol) {
         this.dockSymbol = dockSymbol;
+    }
+
+    /**
+     * @return the targetDock
+     */
+    public Dock getTargetDock() {
+        return targetDock;
+    }
+
+    /**
+     * @param targetDock the targetDock to set
+     */
+    public void setTargetDock(Dock targetDock) {
+        this.targetDock = targetDock;
     }
 }

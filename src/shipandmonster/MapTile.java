@@ -13,6 +13,7 @@ public class MapTile extends JLabel
     private Position position;
     private char symbol;
     private String description;
+    private Position targetPosition;
     
     public MapTile(int col, int row)
     {
@@ -21,8 +22,10 @@ public class MapTile extends JLabel
         setBounds(MenuLibrary.ICON_SIZE*col, MenuLibrary.ICON_SIZE*row, MenuLibrary.ICON_SIZE, MenuLibrary.ICON_SIZE);
         
         position = new Position(col, row);
+        
         symbol = '.'; //set to water by default
         description = "Ocean";
+        targetPosition = null;
     }
     
     public Position getPosition()
@@ -33,6 +36,16 @@ public class MapTile extends JLabel
     public void setPosition(Position p)
     {
         position = p;
+    }
+    
+    public Position getTargetPosition()
+    {
+        return targetPosition;
+    }
+    
+    public void setTargetPosition(Position p)
+    {
+        this.targetPosition = p;
     }
     
     public char getSymbol()
