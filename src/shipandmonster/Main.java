@@ -427,6 +427,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                         } else if (targetCol > col && targetRow < row && failNortheast && failNorth) {//2.4
                             newCol--;
                             newRow--;
+                        }else if (((targetCol > col && targetRow < row) || (targetCol < col && targetRow < row)) && failSouth && failSouthwest && failNorth && failNorthwest) { // test case oiltanker
+                            newCol--;
+                            newRow = row;
                         }
 //                        if (symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P') {
                         symbol = bufferMap[newCol][newRow].getSymbol();
@@ -446,36 +449,60 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                             break;
                         } else {
                             hasError = true;
-                            if (bufferMap[col + 1][row].getSymbol() == '*') {
-//                                symbol = bufferMap[col + 1][row].getSymbol();
+                            try {
+                                if (bufferMap[col + 1][row].getSymbol() == '*') {
+                                    failEast = true;
+                                }
+                            } catch (NullPointerException ex) {
                                 failEast = true;
                             }
-                            if (bufferMap[col - 1][row].getSymbol() == '*') {
-//                                symbol = bufferMap[col - 1][row].getSymbol();
+                            try {
+                                if (bufferMap[col - 1][row].getSymbol() == '*') {
+                                    failWest = true;
+                                }
+                            } catch (NullPointerException ex) {
                                 failWest = true;
                             }
-                            if (bufferMap[col][row + 1].getSymbol() == '*') {
-//                                symbol = bufferMap[col][row + 1].getSymbol();
+                            try {
+                                if (bufferMap[col][row + 1].getSymbol() == '*') {
+                                    failSouth = true;
+                                }
+                            } catch (NullPointerException ex) {
                                 failSouth = true;
                             }
-                            if (bufferMap[col][row - 1].getSymbol() == '*') {
-//                                symbol = bufferMap[col][row - 1].getSymbol();
+                            try {
+                                if (bufferMap[col][row - 1].getSymbol() == '*') {
+                                    failNorth = true;
+                                }
+                            } catch (NullPointerException ex) {
                                 failNorth = true;
                             }
-                            if (bufferMap[col + 1][row + 1].getSymbol() == '*') {
-//                                symbol = bufferMap[col + 1][row + 1].getSymbol();
+                            try {
+                                if (bufferMap[col + 1][row + 1].getSymbol() == '*') {
+                                    failSoutheast = true;
+                                }
+                            } catch (NullPointerException ex) {
                                 failSoutheast = true;
                             }
-                            if (bufferMap[col + 1][row - 1].getSymbol() == '*') {
-//                                symbol = bufferMap[col + 1][row - 1].getSymbol();
+                            try {
+                                if (bufferMap[col + 1][row - 1].getSymbol() == '*') {
+                                    failNortheast = true;
+                                }
+                            } catch (NullPointerException ex) {
                                 failNortheast = true;
                             }
-                            if (bufferMap[col - 1][row + 1].getSymbol() == '*') {
-//                                symbol = bufferMap[col - 1][row + 1].getSymbol();
+                            try {
+                                if (bufferMap[col - 1][row + 1].getSymbol() == '*') {
+                                    failSouthwest = true;
+                                }
+                            } catch (NullPointerException ex) {
                                 failSouthwest = true;
                             }
-                            if (bufferMap[col - 1][row - 1].getSymbol() == '*') {
-//                                symbol = bufferMap[col - 1][row - 1].getSymbol();
+                            try {
+                                if (bufferMap[col - 1][row - 1].getSymbol() == '*') {
+                                    failNorthwest = true;
+                                }
+                            } catch (NullPointerException ex) {
                                 failNorthwest = true;
                             }
                         }
