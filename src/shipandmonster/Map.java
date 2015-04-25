@@ -58,13 +58,16 @@ public class Map {
         int col, row, colDock, rowDock, counter;
         char symbol;
         ArrayList<Dock> arrayListTargetDock = new ArrayList<Dock>();
-        Dock targetDock;
+        ArrayList<Dock> arrayListTargetPier = new ArrayList<Dock>();
+        ArrayList<Dock> arrayListTargetCrane = new ArrayList<Dock>();
+        ArrayList<Dock> tempArrayListTargetDock = new ArrayList<Dock>();
         boolean flag = true;
         Random random = new Random();
 
         arrayTypeShip.add(new CargoShip());
         arrayTypeShip.add(new ContainerShip());
         arrayTypeShip.add(new OilTanker());
+
         for (counter = 0; counter < shipNumber; counter++) {
             //generate location of the ship
             flag = true;
@@ -78,25 +81,25 @@ public class Map {
             } else {
                 ship = new CargoShip();
             }
-            //find the all right target dock
+             //find the all right target dock
             if (!(arrayListTargetDock.isEmpty())) {
                 arrayListTargetDock.clear();
             }
             for (Dock dock : arrayListDock) {
-                if (ship instanceof OilTanker && dock instanceof Pier && dock.isTargeted() == false) {
+                if (ship instanceof OilTanker && dock instanceof Pier) {
                     arrayListTargetDock.add(dock);
-                } else if (ship instanceof ContainerShip && dock instanceof Crane && dock.isTargeted() == false) {
+                } else if (ship instanceof ContainerShip && dock instanceof Crane) {
                     arrayListTargetDock.add(dock);
                 } else if (!(ship instanceof OilTanker)
                         && !(ship instanceof ContainerShip)
                         && !(dock instanceof Pier)
-                        && !(dock instanceof Crane)
-                        && dock.isTargeted() == false) {
+                        && !(dock instanceof Crane)) {
                     {
                         arrayListTargetDock.add(dock);
                     }
                 }
             }
+
             while (flag) {
                 col = Main.randomIntInRange(0, 54);
                 row = Main.randomIntInRange(0, 36);
@@ -122,6 +125,14 @@ public class Map {
 
                 //find the nearest dock
                 //Set target Dock
+//                if (ship instanceof OilTanker) {
+//                    tempArrayListTargetDock = arrayListTargetPier;
+//                } else if (ship instanceof ContainerShip) {
+//                    tempArrayListTargetDock = arrayListTargetCrane;
+//                } else if (!(ship instanceof OilTanker)
+//                        && !(ship instanceof ContainerShip)) {
+//                    tempArrayListTargetDock = arrayListTargetDock;
+//                }
                 for (Dock dock2 : arrayListTargetDock) {
                     int distanceRow, distanceCol, totalDistance;
                     int targetRow, targetCol, totalDistanceTarget;
@@ -134,7 +145,8 @@ public class Map {
                     if (ship.getTargetDock() == null) {
                         ship.setTargetDock(dock2);
                         dock2.setTargeted(true);
-                    } else if (!dock2.isTargeted()) {
+                    } else //if (ship.getTargetDock() != null && !dock2.isTargeted()) 
+                    {
                         targetCol = Math.abs(MapConverter.lon2col(ship.getTargetDock().getLongitude()) - col);
                         targetRow = Math.abs(MapConverter.lat2row(ship.getTargetDock().getLatitude()) - row);
                         totalDistanceTarget = targetCol + targetRow;
