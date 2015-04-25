@@ -10,10 +10,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -190,15 +188,24 @@ public class UpdateShipForm extends JDialog implements ActionListener {
             shipData.setLongitude(MapConverter.col2lon(Integer.valueOf(this.txtColumn.getText())));
             shipData.setLatitude(MapConverter.row2lat(Integer.valueOf(this.txtRow.getText())));
 
-//            bufferMapData[col][row] = new MapTile(col, row);
-            bufferMapData[col][row].setLocation(bufferMapData[newCol][newRow].getX() + MenuLibrary.MAP_ORIGIN_X, bufferMapData[newCol][newRow].getY() + MenuLibrary.MAP_ORIGIN_Y);
-//            bufferMapData[col][row] = null;
-//            MapTile dropTile = bufferMapData[col][row];
+//          bufferMapData[col][row] = new MapTile(col, row);
+            //bufferMapData[col][row].setLocation(bufferMapData[newCol][newRow].getX() + MenuLibrary.MAP_ORIGIN_X, bufferMapData[newCol][newRow].getY() + MenuLibrary.MAP_ORIGIN_Y);
+//          bufferMapData[col][row] = null;
+//          MapTile dropTile = bufferMapData[col][row];
             generateTargetDockForShip(shipData);
             newTargetPosition = new Position();
             newTargetPosition.setColumn(MapConverter.lon2col(shipData.getTargetDock().getLongitude()));
             newTargetPosition.setRow(MapConverter.lat2row(shipData.getTargetDock().getLatitude()));
+            Icon newIcon = bufferMapData[newCol][newRow].getIcon();
+            bufferMapData[newCol][newRow].setIcon(bufferMapData[col][row].getIcon());
+            bufferMapData[col][row].setIcon(newIcon);
             bufferMapData[newCol][newRow].setTargetPosition(newTargetPosition);
+            bufferMapData[col][row].setTargetPosition(null);
+            char oldSymbol = bufferMapData[col][row].getSymbol();
+            bufferMapData[col][row].setSymbol(bufferMapData[newCol][newRow].getSymbol());
+            bufferMapData[newCol][newRow].setSymbol(oldSymbol);
+            shipData.getPosition().setColumn(newCol);
+            shipData.getPosition().setRow(newRow);
 
             parent.setVisible(true);
 

@@ -560,6 +560,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                                     newTargetPosition.setColumn(MapConverter.lon2col(s.getTargetDock().getLongitude()));
                                     newTargetPosition.setRow(MapConverter.lat2row(s.getTargetDock().getLatitude()));
                                     dropTile.setTargetPosition(newTargetPosition);
+                                    selectedTile.setTargetPosition(null);//clear the target from the old tile
                                     break;
                                 }
                             }
