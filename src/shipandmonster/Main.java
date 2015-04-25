@@ -293,6 +293,10 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
                     char symbol;
                     boolean hasError = false, failNorth = false, failNortheast = false, failEast = false, failSoutheast = false, failSouth = false, failSouthwest = false, failWest = false, failNorthwest = false;
+
+                    if (targetCol == col && targetRow == row) {
+                        continue;
+                    }
                     while (flag) {
                         newCol = col;
                         newRow = row;
@@ -396,35 +400,35 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                         } else {
                             hasError = true;
                             if (bufferMap[col + 1][row].getSymbol() == '*') {
-                                symbol = bufferMap[col + 1][row].getSymbol();
+//                                symbol = bufferMap[col + 1][row].getSymbol();
                                 failEast = true;
                             }
                             if (bufferMap[col - 1][row].getSymbol() == '*') {
-                                symbol = bufferMap[col - 1][row].getSymbol();
+//                                symbol = bufferMap[col - 1][row].getSymbol();
                                 failWest = true;
                             }
                             if (bufferMap[col][row + 1].getSymbol() == '*') {
-                                symbol = bufferMap[col][row + 1].getSymbol();
+//                                symbol = bufferMap[col][row + 1].getSymbol();
                                 failSouth = true;
                             }
                             if (bufferMap[col][row - 1].getSymbol() == '*') {
-                                symbol = bufferMap[col][row - 1].getSymbol();
+//                                symbol = bufferMap[col][row - 1].getSymbol();
                                 failNorth = true;
                             }
                             if (bufferMap[col + 1][row + 1].getSymbol() == '*') {
-                                symbol = bufferMap[col + 1][row + 1].getSymbol();
+//                                symbol = bufferMap[col + 1][row + 1].getSymbol();
                                 failSoutheast = true;
                             }
                             if (bufferMap[col + 1][row - 1].getSymbol() == '*') {
-                                symbol = bufferMap[col + 1][row - 1].getSymbol();
+//                                symbol = bufferMap[col + 1][row - 1].getSymbol();
                                 failNortheast = true;
                             }
                             if (bufferMap[col - 1][row + 1].getSymbol() == '*') {
-                                symbol = bufferMap[col - 1][row + 1].getSymbol();
+//                                symbol = bufferMap[col - 1][row + 1].getSymbol();
                                 failSouthwest = true;
                             }
                             if (bufferMap[col - 1][row - 1].getSymbol() == '*') {
-                                symbol = bufferMap[col - 1][row - 1].getSymbol();
+//                                symbol = bufferMap[col - 1][row - 1].getSymbol();
                                 failNorthwest = true;
                             }
                         }
@@ -1577,7 +1581,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         //gridLabel.setIcon(new ImageIcon(MenuLibrary.iconPath + "gridOverlay.png"));
         //IMPORTANT: file paths should be changed and verified for the demonstration!!!
         //geoMap = new JLabel[54][36];
-        bufferMap = new MapTile[54][36];
+        bufferMap = new MapTile[1000][1000];
         for (int c = 0; c < 54; c++) {
             for (int r = 0; r < 36; r++) {
                 //geoMap[c][r] = new JLabel();
