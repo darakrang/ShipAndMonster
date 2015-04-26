@@ -614,10 +614,10 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             godzilla = new Godzilla();
             while (flag)
             {
-                longitude = Main.randomDoubleInRange(-3.035000, -2.988478);
-                latitude = Main.randomDoubleInRange(53.396700, 53.457561);
-                col = MapConverter.lon2col(longitude);
-                row = MapConverter.lat2row(latitude);
+                col = Main.randomIntInRange(0, 53);
+                row = Main.randomIntInRange(0, 35);
+                longitude = MapConverter.col2lon(col);
+                latitude = MapConverter.row2lat(row);
 
                 // check: location of ship is out of map
                 if (row > 35 || col > 53)
@@ -819,7 +819,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     Position newTargetPosition;
 
                     //now, update the map tiles to reflect the drag/drop change
-                    if (dropTile.getSymbol() != '*') {
+                    if (dropTile.getSymbol() != '*' || selectedTile.getSymbol() == 'G') {
                         //the ship / monster was moved to a tile of open water
                         //swap the tiles' symbols and return the dragged tile to it's original position
                         if (selectedShip != null) {
@@ -1541,7 +1541,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 {
                     //there is a ship in danger in the same spot as the monster
                     //destroy all ships at the monsters location
-                    monster.battleCry();
+                    statusTerminal.setText(monster.battleCry());
                     for(int i = 0; i < map.getArrayListShip().size(); i++)
                     {
                         CargoShip s = map.getArrayListShip().get(i);
@@ -1571,7 +1571,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     if(!battleCryed)
                     {
                         //only battlecry once, no matter how many monsters he eats at once
-                        godzilla.battleCry();
+                        statusTerminal.setText(godzilla.battleCry());
                         battleCryed = true;
                     }
                     arrayListMonster.remove(monster);

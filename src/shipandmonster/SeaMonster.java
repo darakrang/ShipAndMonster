@@ -16,7 +16,7 @@ public abstract class SeaMonster {
     protected int currentCount;
     protected char symbol;
     
-    abstract public void battleCry();    
+    abstract public String battleCry();    
     abstract public String displayMonster();
 
     /**
