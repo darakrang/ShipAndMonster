@@ -15,6 +15,8 @@ public abstract class SeaMonster {
     protected String label;
     protected int currentCount;
     protected char symbol;
+    protected Position targetPosition;
+    protected boolean targeted;
     
     abstract public void battleCry();    
     abstract public String displayMonster();
@@ -56,4 +58,34 @@ public abstract class SeaMonster {
     {
         this.symbol = s;
     }
+
+    /**
+     * @return the targetPosition
+     */
+    public Position getTargetPosition() {
+        return targetPosition;
+    }
+
+    /**
+     * @param targetPosition the targetPosition to set
+     */
+    public void setTargetPosition(Position targetPosition) {
+        this.targetPosition = targetPosition;
+    }
+
+    /**
+     * @return the targeted
+     */
+    public boolean isTargeted() {
+        return targeted;
+    }
+
+    /**
+     * @param targeted the targeted to set
+     */
+    public void setTargeted(boolean targeted) {
+        this.targeted = targeted;
+    }
+
+   
 }

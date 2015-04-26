@@ -117,7 +117,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private ArrayList<Dock> arrayListUnloadDock = new ArrayList<Dock>();
     private ArrayList<SeaMonster> arrayListMonster = new ArrayList<SeaMonster>();
     private Timer timer;
-    
+
     private boolean godzillaExists;
     private Godzilla godzilla;
 
@@ -148,7 +148,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
         //Initialize AI 
         runningAI = true;
-        timer = new Timer(1000, this);
+        timer = new Timer(500, this);
         closed = false;
     }
 
@@ -267,16 +267,13 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 case MenuLibrary.commandStart: {
                     //only start the threading if ships exist to go to docks, or if monsters & ships exist, or if godzilla and monsters exist
                     //otherwise there is nothing to target
-                    if(!map.getArrayListShip().isEmpty() || (!arrayListMonster.isEmpty() && godzillaExists))
-                    {
+                    if (!map.getArrayListShip().isEmpty() || (!arrayListMonster.isEmpty() && godzillaExists)) {
                         try {
-                            startAI(true);
+                            startAI();
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         statusTerminal.setText("There are no ships or monsters on the map.");
                     }
                 }
@@ -289,20 +286,15 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 case MenuLibrary.commandOpen:
                     String filename = JOptionPane.showInputDialog(null, "Type in the filename:", "Open Fileset", JOptionPane.INFORMATION_MESSAGE);
                     char readInPort = ' ';
-                    do
-                    {
+                    do {
                         readInPort = JOptionPane.showInputDialog(null, "Is there a port file to read in?\n(Enter 'y' for yes and 'n' for no)", "Open Fileset", JOptionPane.INFORMATION_MESSAGE).charAt(0);
-                        if(readInPort != 'Y' && readInPort != 'y' && readInPort != 'N' && readInPort != 'n')
-                        {
+                        if (readInPort != 'Y' && readInPort != 'y' && readInPort != 'N' && readInPort != 'n') {
                             JOptionPane.showMessageDialog(null, "Only enter 'y' for yes or 'n' for no! Try again.");
                         }
-                    }while(readInPort != 'Y' && readInPort != 'y' && readInPort != 'N' && readInPort != 'n');
-                    if(readInPort != 'Y' && readInPort != 'y')
-                    {
+                    } while (readInPort != 'Y' && readInPort != 'y' && readInPort != 'N' && readInPort != 'n');
+                    if (readInPort != 'Y' && readInPort != 'y') {
                         map = new Map(filename, true);
-                    }
-                    else
-                    {
+                    } else {
                         map = new Map(filename);
                     }
                     pane.moveToBack(backgroundLabel);
@@ -323,203 +315,425 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         this.repaint();
     }
 
-    public void startAI(boolean running) throws InterruptedException {
+    public void startAI() throws InterruptedException {
         int delay = 500;// wait for a half-second
 
         timer = new Timer(delay, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                int newCol = 0;
-                int newRow = 0;
-                boolean flag = true;
-                for (CargoShip ship : map.getArrayListShip()) {
-                    int col = (MapConverter.lon2col(ship.getLongitude()));
-                    int row = (MapConverter.lat2row(ship.getLatitude()));
-                    int targetCol = (MapConverter.lon2col(ship.getTargetDock().getLongitude()));
-                    int targetRow = (MapConverter.lat2row(ship.getTargetDock().getLatitude()));
-
-                    char symbol;
-                    boolean hasError = false, failNorth = false, failNortheast = false, failEast = false, failSoutheast = false, failSouth = false, failSouthwest = false, failWest = false, failNorthwest = false;
-
-                    if (targetCol == col && targetRow == row) {
-                        continue;
-                    }
-                    while (flag) {
-                        newCol = col;
-                        newRow = row;
-                        if (targetCol > newCol && !hasError) {
-                            newCol++;
-                        } else if (targetCol < newCol && !hasError) {
-                            newCol--;
-                        }
-
-                        if (targetRow > newRow && !hasError) {
-                            newRow++;
-                        } else if (targetRow < newRow && !hasError) {
-                            newRow--;
-                        }
-
-                        /////////// Test when it has error
-                        if (targetCol == col && targetRow > row && failSouth) {// test case oilTank
-                            newCol--;
-                            newRow++;
-                        } else if (targetCol > col && targetRow > row && (failSoutheast && failEast)) {
-                            newCol = col;
-                            newRow++;
-                        } else if (targetCol < col && targetRow > row && failSouthwest) {
-                            if (failWest && failSouth) {
-                                newCol++;
-                                newRow++;
-                            } else if (failSouth) {
-                                newCol--;
-                                newRow = row;
-                            } else if (failWest) {
-                                newCol = col;
-                                newRow++;
-                            } else {
-                                newCol = col;
-                                newRow++;
-                            }
-                        } else if (targetCol > col && targetRow < row && failNortheast) {
-                            if (failNorth && failNorthwest) {
-                                newCol--;
-                                newRow = row;
-                            } else if (failNorth) {
-                                newCol--;
-                                newRow--;
-                            } else if (failEast) { //2.5
-                                newCol = col;
-                                newRow--;
-                            }
-                        } //test case cargo ship
-                        else if (targetCol == col && targetRow < row && failNorth && failNorthwest && failWest) {
-                            symbol = bufferMap[newCol - 2][newRow + 1].getSymbol();
-                            if (symbol != '*') { //2.2
-                                newCol -= 2;
-                                newRow++;
-                            } else { //////////////3.1
-                                newCol++;
-                                newRow--;
-                            }
-                        } else if (targetCol == col && targetRow < row && failNorth && failNorthwest) { // test case CargoShip: 1
-                            newCol--;
-                            newRow = row;
-                        } else if (targetCol > col && targetRow < row && failNortheast) { //1.2
-                            if (failNorth && failNorthwest) {
-                                newCol--;
-                                newRow = row;
-                            } else if (failNorth) {
-                                newCol--;
-                                newRow--;
-                            } else if (failEast) {
-                                newCol = col;
-                                newRow--;
-                            }
-                        } else if (targetCol < col && targetRow < row && failNorth && failNorthwest && failWest) { //case 2.1
-                            newCol--;
-                            newRow++;
-                        } else if (targetCol < col && targetRow < row && failNorthwest && failWest) { //case 3.2
-                            newCol = col;
-                            newRow--;
-                        } else if (targetCol > col && targetRow < row && failNorth && failNorthwest) {//2.3
-                            newCol--;
-                            newRow = col;
-                        } else if (targetCol > col && targetRow < row && failNortheast && failNorth) {//2.4
-                            newCol--;
-                            newRow--;
-                        }else if (((targetCol > col && targetRow < row) || (targetCol < col && targetRow < row)) && failSouth && failSouthwest && failNorth && failNorthwest) { // test case oiltanker
-                            newCol--;
-                            newRow = row;
-                        }
-//                        if (symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P') {
-                        symbol = bufferMap[newCol][newRow].getSymbol();
-                        if (symbol != '*') {
-                            flag = true;
-                            hasError = false;
-
-                            failNorth = false;
-                            failNorthwest = false;
-                            failNortheast = false;
-                            failEast = false;
-                            failSoutheast = false;
-                            failSouth = false;
-                            failSouthwest = false;
-                            failWest = false;
-
-                            break;
-                        } else {
-                            hasError = true;
-                            try {
-                                if (bufferMap[col + 1][row].getSymbol() == '*') {
-                                    failEast = true;
-                                }
-                            } catch (NullPointerException ex) {
-                                failEast = true;
-                            }
-                            try {
-                                if (bufferMap[col - 1][row].getSymbol() == '*') {
-                                    failWest = true;
-                                }
-                            } catch (NullPointerException ex) {
-                                failWest = true;
-                            }
-                            try {
-                                if (bufferMap[col][row + 1].getSymbol() == '*') {
-                                    failSouth = true;
-                                }
-                            } catch (NullPointerException ex) {
-                                failSouth = true;
-                            }
-                            try {
-                                if (bufferMap[col][row - 1].getSymbol() == '*') {
-                                    failNorth = true;
-                                }
-                            } catch (NullPointerException ex) {
-                                failNorth = true;
-                            }
-                            try {
-                                if (bufferMap[col + 1][row + 1].getSymbol() == '*') {
-                                    failSoutheast = true;
-                                }
-                            } catch (NullPointerException ex) {
-                                failSoutheast = true;
-                            }
-                            try {
-                                if (bufferMap[col + 1][row - 1].getSymbol() == '*') {
-                                    failNortheast = true;
-                                }
-                            } catch (NullPointerException ex) {
-                                failNortheast = true;
-                            }
-                            try {
-                                if (bufferMap[col - 1][row + 1].getSymbol() == '*') {
-                                    failSouthwest = true;
-                                }
-                            } catch (NullPointerException ex) {
-                                failSouthwest = true;
-                            }
-                            try {
-                                if (bufferMap[col - 1][row - 1].getSymbol() == '*') {
-                                    failNorthwest = true;
-                                }
-                            } catch (NullPointerException ex) {
-                                failNorthwest = true;
-                            }
-                        }
-                    }
-                    Icon newIcon = bufferMap[newCol][newRow].getIcon();
-                    bufferMap[newCol][newRow].setIcon(bufferMap[col][row].getIcon());
-                    bufferMap[col][row].setIcon(newIcon);
-                    char oldSymbol = bufferMap[col][row].getSymbol();
-                    bufferMap[col][row].setSymbol(bufferMap[newCol][newRow].getSymbol());
-                    bufferMap[newCol][newRow].setSymbol(oldSymbol);
-                    ship.getPosition().setColumn(newCol);
-                    ship.getPosition().setRow(newRow);
-                    repaint();
-                }
+                shipAI();
+                monsterAI();
             }
         });
         timer.start();
+    }
+
+    public void shipAI() {
+        int newCol = 0;
+        int newRow = 0;
+        boolean flag = true;
+        for (CargoShip ship : map.getArrayListShip()) {
+            int col = (MapConverter.lon2col(ship.getLongitude()));
+            int row = (MapConverter.lat2row(ship.getLatitude()));
+            int targetCol = (MapConverter.lon2col(ship.getTargetDock().getLongitude()));
+            int targetRow = (MapConverter.lat2row(ship.getTargetDock().getLatitude()));
+
+            char symbol;
+            boolean hasError = false, failNorth = false, failNortheast = false, failEast = false, failSoutheast = false, failSouth = false, failSouthwest = false, failWest = false, failNorthwest = false;
+
+            if (targetCol == col && targetRow == row) {
+                continue;
+            }
+            while (flag) {
+                newCol = col;
+                newRow = row;
+                if (targetCol > newCol && !hasError) {
+                    newCol++;
+                } else if (targetCol < newCol && !hasError) {
+                    newCol--;
+                }
+
+                if (targetRow > newRow && !hasError) {
+                    newRow++;
+                } else if (targetRow < newRow && !hasError) {
+                    newRow--;
+                }
+
+                /////////// Test when it has error
+                if (targetCol == col && targetRow > row && failSouth) {// test case oilTank
+                    newCol--;
+                    newRow++;
+                } else if (targetCol > col && targetRow > row && (failSoutheast && failEast)) {
+                    newCol = col;
+                    newRow++;
+                } else if (targetCol < col && targetRow > row && failSouthwest) {
+                    if (failWest && failSouth) {
+                        newCol++;
+                        newRow++;
+                    } else if (failSouth) {
+                        newCol--;
+                        newRow = row;
+                    } else if (failWest) {
+                        newCol = col;
+                        newRow++;
+                    } else {
+                        newCol = col;
+                        newRow++;
+                    }
+                } else if (targetCol > col && targetRow < row && failNortheast) {
+                    if (failNorth && failNorthwest) {
+                        newCol--;
+                        newRow = row;
+                    } else if (failNorth) {
+                        newCol--;
+                        newRow--;
+                    } else if (failEast) { //2.5
+                        newCol = col;
+                        newRow--;
+                    }
+                } //test case cargo ship
+                else if (targetCol == col && targetRow < row && failNorth && failNorthwest && failWest) {
+                    symbol = bufferMap[newCol - 2][newRow + 1].getSymbol();
+                    if (symbol != '*') { //2.2
+                        newCol -= 2;
+                        newRow++;
+                    } else { //////////////3.1
+                        newCol++;
+                        newRow--;
+                    }
+                } else if (targetCol == col && targetRow < row && failNorth && failNorthwest) { // test case CargoShip: 1
+                    newCol--;
+                    newRow = row;
+                } else if (targetCol > col && targetRow < row && failNortheast) { //1.2
+                    if (failNorth && failNorthwest) {
+                        newCol--;
+                        newRow = row;
+                    } else if (failNorth) {
+                        newCol--;
+                        newRow--;
+                    } else if (failEast) {
+                        newCol = col;
+                        newRow--;
+                    }
+                } else if (targetCol < col && targetRow < row && failNorth && failNorthwest && failWest) { //case 2.1
+                    newCol--;
+                    newRow++;
+                } else if (targetCol < col && targetRow < row && failNorthwest && failWest) { //case 3.2
+                    newCol = col;
+                    newRow--;
+                } else if (targetCol > col && targetRow < row && failNorth && failNorthwest) {//2.3
+                    newCol--;
+                    newRow = col;
+                } else if (targetCol > col && targetRow < row && failNortheast && failNorth) {//2.4
+                    newCol--;
+                    newRow--;
+                } else if (((targetCol > col && targetRow < row) || (targetCol < col && targetRow < row)) && failSouth && failSouthwest && failNorth && failNorthwest) { // test case oiltanker
+                    newCol--;
+                    newRow = row;
+                }
+//                        if (symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P') {
+                symbol = bufferMap[newCol][newRow].getSymbol();
+                if (symbol != '*') {
+                    flag = true;
+                    hasError = false;
+
+                    failNorth = false;
+                    failNorthwest = false;
+                    failNortheast = false;
+                    failEast = false;
+                    failSoutheast = false;
+                    failSouth = false;
+                    failSouthwest = false;
+                    failWest = false;
+
+                    break;
+                } else {
+                    hasError = true;
+                    try {
+                        if (bufferMap[col + 1][row].getSymbol() == '*') {
+                            failEast = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failEast = true;
+                    }
+                    try {
+                        if (bufferMap[col - 1][row].getSymbol() == '*') {
+                            failWest = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failWest = true;
+                    }
+                    try {
+                        if (bufferMap[col][row + 1].getSymbol() == '*') {
+                            failSouth = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failSouth = true;
+                    }
+                    try {
+                        if (bufferMap[col][row - 1].getSymbol() == '*') {
+                            failNorth = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failNorth = true;
+                    }
+                    try {
+                        if (bufferMap[col + 1][row + 1].getSymbol() == '*') {
+                            failSoutheast = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failSoutheast = true;
+                    }
+                    try {
+                        if (bufferMap[col + 1][row - 1].getSymbol() == '*') {
+                            failNortheast = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failNortheast = true;
+                    }
+                    try {
+                        if (bufferMap[col - 1][row + 1].getSymbol() == '*') {
+                            failSouthwest = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failSouthwest = true;
+                    }
+                    try {
+                        if (bufferMap[col - 1][row - 1].getSymbol() == '*') {
+                            failNorthwest = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failNorthwest = true;
+                    }
+                }
+            }
+            Icon newIcon = bufferMap[newCol][newRow].getIcon();
+            bufferMap[newCol][newRow].setIcon(bufferMap[col][row].getIcon());
+            bufferMap[col][row].setIcon(newIcon);
+            char oldSymbol = bufferMap[col][row].getSymbol();
+            bufferMap[col][row].setSymbol(bufferMap[newCol][newRow].getSymbol());
+            bufferMap[newCol][newRow].setSymbol(oldSymbol);
+            ship.getPosition().setColumn(newCol);
+            ship.getPosition().setRow(newRow);
+            repaint();
+        }
+    }
+
+    public void monsterAI() {
+        int newCol = 0;
+        int newRow = 0;
+        int step = 1;
+        boolean flag = true;
+        for (SeaMonster monster : arrayListMonster) {
+            int col = (MapConverter.lon2col(monster.getPosition().getLongitude()));
+            int row = (MapConverter.lat2row(monster.getPosition().getLatitude()));
+            if (monster.getTargetPosition() == null) {
+                if (monster instanceof Godzilla) {
+                    generateTargetForGodzilla(monster);
+                } else {
+                    generateTargetShipForMonster(monster);
+                }
+                if (monster.getTargetPosition() == null) {
+                    continue;
+                }
+            }
+            int targetCol = monster.getTargetPosition().getColumn();
+            int targetRow = monster.getTargetPosition().getRow();
+
+            char symbol;
+            boolean hasError = false, failNorth = false, failNortheast = false, failEast = false, failSoutheast = false, failSouth = false, failSouthwest = false, failWest = false, failNorthwest = false;
+            if (targetCol == col && targetRow == row) {
+                monster.setTargetPosition(null);
+                continue;
+            }
+//            if (monster instanceof SeaSerpent) {
+//                step = 2;
+//            } else {
+//                step = 1;
+//            }
+            while (flag) {
+                newCol = col;
+                newRow = row;
+                if (targetCol > newCol && !hasError) {
+                    newCol += step;
+                } else if (targetCol < newCol && !hasError) {
+                    newCol -= step;
+                }
+
+                if (targetRow > newRow && !hasError) {
+                    newRow += step;
+                } else if (targetRow < newRow && !hasError) {
+                    newRow -= step;
+                }
+
+                /////////// Test when it has error
+                if (targetCol == col && targetRow > row && failSouth) {// test case oilTank
+                    newCol -= step;
+                    newRow += step;
+                } else if (targetCol > col && targetRow > row && (failSoutheast && failEast)) {
+                    newCol = col;
+                    newRow += step;
+                } else if (targetCol < col && targetRow > row && failSouthwest) {
+                    if (failWest && failSouth) {
+                        newCol += step;
+                        newRow += step;
+                    } else if (failSouth) {
+                        newCol -= step;
+                        newRow = row;
+                    } else if (failWest) {
+                        newCol = col;
+                        newRow += step;
+                    } else {
+                        newCol = col;
+                        newRow += step;
+                    }
+                } else if (targetCol > col && targetRow < row && failNortheast && failNorth && failWest && failSouthwest && failSouth) { // test case monster 3.1
+                    newCol += step;
+                    newRow = row;
+                } else if (targetCol > col && targetRow < row && failNortheast) {
+                    if (failNorth && failNorthwest) {
+                        newCol -= step;
+                        newRow = row;
+                    } else if (failNorth) {
+                        newCol -= step;
+                        newRow -= step;
+                    } else if (failEast) { //2.5
+                        newCol = col;
+                        newRow -= step;
+                    }
+                } //test case cargo ship
+                else if (targetCol == col && targetRow < row && failNorth && failNorthwest && failWest) {
+                    symbol = bufferMap[newCol - 2][newRow + 1].getSymbol();
+                    if (symbol != '*') { //2.2
+                        newCol -= 2;
+                        newRow += step;
+                    } else { //////////////3.1
+                        newCol++;
+                        newRow -= step;
+                    }
+                } else if (targetCol == col && targetRow < row && failNorth && failNorthwest) { // test case CargoShip: 1
+                    newCol -= step;;
+                    newRow = row;
+                } else if (targetCol < col && targetRow < row && failNorth && failNorthwest && failWest) { //case 2.1
+                    newCol -= step;;
+                    newRow += step;
+                } else if (targetCol < col && targetRow < row && failNorthwest && failWest) { //case 3.2
+                    newCol = col;
+                    newRow -= step;
+                } else if (targetCol > col && targetRow < row && failNorth && failNorthwest) {//2.3
+                    newCol -= step;;
+                    newRow = col;
+                } else if (targetCol > col && targetRow < row && failNortheast && failNorth) {//2.4
+                    newCol -= step;;
+                    newRow -= step;
+                } else if (((targetCol > col && targetRow < row) || (targetCol < col && targetRow < row)) && failSouth && failSouthwest && failNorth && failNorthwest) { // test case oiltanker
+                    newCol -= step;;
+                    newRow = row;
+                } else if (targetCol > col && targetRow == row && failEast && failSouth) { //test case monster
+                    if (failSoutheast) {
+                        newCol += step;
+                        newRow -= step;
+                    } // 4.1.1
+                    else {//4.2.1
+                        newCol += step;
+                        newRow += step;
+                    }
+                } else if (targetCol > col && targetRow > row && failEast && failSouth) {
+                    newCol += step;
+                    newRow += step;
+                } else if (targetCol < col && targetRow < row && failNorth && failNorthwest && failSoutheast) { //case 4.2
+                    newCol -= step;
+                    newRow = row;
+                } else if (targetCol == col && targetRow < row && failNorthwest && failNorth && failNortheast) {
+                    newCol -= step;
+                    newRow = row;
+                }
+//                        if (symbol != '.' && symbol != '*' && symbol != 'D' && symbol != 'C' && symbol != 'P') {
+                symbol = bufferMap[newCol][newRow].getSymbol();
+                if (symbol != '*') {
+                    flag = true;
+                    hasError = false;
+
+                    failNorth = false;
+                    failNorthwest = false;
+                    failNortheast = false;
+                    failEast = false;
+                    failSoutheast = false;
+                    failSouth = false;
+                    failSouthwest = false;
+                    failWest = false;
+
+                    break;
+                } else {
+                    hasError = true;
+                    try {
+                        if (bufferMap[col + 1][row].getSymbol() == '*') {
+                            failEast = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failEast = true;
+                    }
+                    try {
+                        if (bufferMap[col - 1][row].getSymbol() == '*') {
+                            failWest = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failWest = true;
+                    }
+                    try {
+                        if (bufferMap[col][row + 1].getSymbol() == '*') {
+                            failSouth = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failSouth = true;
+                    }
+                    try {
+                        if (bufferMap[col][row - 1].getSymbol() == '*') {
+                            failNorth = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failNorth = true;
+                    }
+                    try {
+                        if (bufferMap[col + 1][row + 1].getSymbol() == '*') {
+                            failSoutheast = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failSoutheast = true;
+                    }
+                    try {
+                        if (bufferMap[col + 1][row - 1].getSymbol() == '*') {
+                            failNortheast = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failNortheast = true;
+                    }
+                    try {
+                        if (bufferMap[col - 1][row + 1].getSymbol() == '*') {
+                            failSouthwest = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failSouthwest = true;
+                    }
+                    try {
+                        if (bufferMap[col - 1][row - 1].getSymbol() == '*') {
+                            failNorthwest = true;
+                        }
+                    } catch (NullPointerException ex) {
+                        failNorthwest = true;
+                    }
+                }
+            }
+            Icon newIcon = bufferMap[newCol][newRow].getIcon();
+            bufferMap[newCol][newRow].setIcon(bufferMap[col][row].getIcon());
+            bufferMap[col][row].setIcon(newIcon);
+            char oldSymbol = bufferMap[col][row].getSymbol();
+            bufferMap[col][row].setSymbol(bufferMap[newCol][newRow].getSymbol());
+            bufferMap[newCol][newRow].setSymbol(oldSymbol);
+            monster.getPosition().setColumn(newCol);
+            monster.getPosition().setRow(newRow);
+            repaint();
+        }
     }
 
     public void displayMonstersInForm() {
@@ -601,10 +815,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     }
 
     //gererate monsters and add it to map object
-    public void generateGodzilla()
-    {
-        if(!godzillaExists)
-        {
+    public void generateGodzilla() {
+        if (!godzillaExists) {
             double longitude;
             double latitude;
             int col, row;
@@ -612,16 +824,14 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             boolean flag = true;
             Random random = new Random();
             godzilla = new Godzilla();
-            while (flag)
-            {
+            while (flag) {
                 longitude = Main.randomDoubleInRange(-3.035000, -2.988478);
                 latitude = Main.randomDoubleInRange(53.396700, 53.457561);
                 col = MapConverter.lon2col(longitude);
                 row = MapConverter.lat2row(latitude);
 
                 // check: location of ship is out of map
-                if (row > 35 || col > 53)
-                {
+                if (row > 35 || col > 53) {
                     continue;
                 }
                 symbol = map.getMapSymbol()[row][col];
@@ -660,9 +870,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             godzillaExists = true;
 
             this.repaint();
-        }
-        else
-        {
+        } else {
             statusTerminal.setText("Godzilla already exists.");
         }
     }
@@ -903,6 +1111,98 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     ship.getTargetDock().setTargeted(false);
                     ship.setTargetDock(dock2);
                     dock2.setTargeted(true);
+                }
+            }
+        }
+    }
+
+    //generate Target ship For monster
+    public void generateTargetShipForMonster(SeaMonster monster) {
+        int col, row, colDock, rowDock;
+        col = MapConverter.lon2col(monster.getPosition().getLongitude());
+        row = MapConverter.lat2row(monster.getPosition().getLatitude());
+
+        //find the nearest ship
+        //Set target ship
+        for (CargoShip targetShip : map.getArrayListShip()) {
+            int distanceRow, distanceCol, totalDistance;
+            int targetRow, targetCol, totalDistanceTarget;
+            colDock = MapConverter.lon2col(targetShip.getLongitude());
+            rowDock = MapConverter.lat2row(targetShip.getLatitude());
+            distanceCol = Math.abs(colDock - col);
+            distanceRow = Math.abs(rowDock - row);
+            totalDistance = distanceCol + distanceRow;
+
+            if (monster.getTargetPosition() == null) {
+                monster.setTargetPosition(targetShip.getPosition());
+                targetShip.setTargeted(true);
+            } else if (!targetShip.isTargeted()) {
+                targetCol = Math.abs(monster.getTargetPosition().getColumn() - col);
+                targetRow = Math.abs(monster.getTargetPosition().getRow() - row);
+                totalDistanceTarget = targetCol + targetRow;
+                if (totalDistanceTarget >= totalDistance) {
+                    monster.setTargetPosition(targetShip.getPosition());
+                    targetShip.setTargeted(true);
+                }
+            }
+        }
+    }
+
+    //generate Target monster or ship For monster
+    public void generateTargetForGodzilla(SeaMonster monster) {
+        int col, row, colDock, rowDock;
+        col = MapConverter.lon2col(monster.getPosition().getLongitude());
+        row = MapConverter.lat2row(monster.getPosition().getLatitude());
+
+        //find the nearest ship
+        //Set target ship
+        if (arrayListMonster != null && arrayListMonster.size() >= 2) {
+            for (SeaMonster targetMonster : arrayListMonster) {
+                int distanceRow, distanceCol, totalDistance;
+                int targetRow, targetCol, totalDistanceTarget;
+                if (targetMonster instanceof Godzilla) {
+                    continue;
+                }
+                colDock = MapConverter.lon2col(targetMonster.getPosition().getLongitude());
+                rowDock = MapConverter.lat2row(targetMonster.getPosition().getLatitude());
+                distanceCol = Math.abs(colDock - col);
+                distanceRow = Math.abs(rowDock - row);
+                totalDistance = distanceCol + distanceRow;
+
+                if (monster.getTargetPosition() == null) {
+                    monster.setTargetPosition(targetMonster.getPosition());
+                    targetMonster.setTargeted(true);
+                } else if (!targetMonster.isTargeted()) {
+                    targetCol = Math.abs(monster.getTargetPosition().getColumn() - col);
+                    targetRow = Math.abs(monster.getTargetPosition().getRow() - row);
+                    totalDistanceTarget = targetCol + targetRow;
+                    if (totalDistanceTarget >= totalDistance) {
+                        monster.setTargetPosition(targetMonster.getPosition());
+                        targetMonster.setTargeted(true);
+                    }
+                }
+            }
+        } else {
+            for (CargoShip targetShip : map.getArrayListShip()) {
+                int distanceRow, distanceCol, totalDistance;
+                int targetRow, targetCol, totalDistanceTarget;
+                colDock = MapConverter.lon2col(targetShip.getLongitude());
+                rowDock = MapConverter.lat2row(targetShip.getLatitude());
+                distanceCol = Math.abs(colDock - col);
+                distanceRow = Math.abs(rowDock - row);
+                totalDistance = distanceCol + distanceRow;
+
+                if (monster.getTargetPosition() == null) {
+                    monster.setTargetPosition(targetShip.getPosition());
+                    targetShip.setTargeted(true);
+                } else if (!targetShip.isTargeted()) {
+                    targetCol = Math.abs(monster.getTargetPosition().getColumn() - col);
+                    targetRow = Math.abs(monster.getTargetPosition().getRow() - row);
+                    totalDistanceTarget = targetCol + targetRow;
+                    if (totalDistanceTarget >= totalDistance) {
+                        monster.setTargetPosition(targetShip.getPosition());
+                        targetShip.setTargeted(true);
+                    }
                 }
             }
         }
@@ -1406,8 +1706,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         }
 
         // combine monster and map
-        if(arrayListMonster != null)
-        {
+        if (arrayListMonster != null) {
             for (SeaMonster monster : arrayListMonster) {
                 row = monster.getPosition().getRow();
                 col = monster.getPosition().getColumn();
@@ -1440,43 +1739,30 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     || map.getMapSymbol()[row][col] == 'C') {
                 //check for the correct/matching dock type
                 char shipSymbol = 'S';
-                if(ship instanceof OilTanker)
-                {
+                if (ship instanceof OilTanker) {
                     shipSymbol = 'T';
-                }
-                else if(ship instanceof ContainerShip)
-                {
+                } else if (ship instanceof ContainerShip) {
                     shipSymbol = 'B';
                 }
-                switch(map.getMapSymbol()[row][col])
-                {
+                switch (map.getMapSymbol()[row][col]) {
                     case 'D':
-                        if(shipSymbol == 'S')
-                        {
+                        if (shipSymbol == 'S') {
                             map.getMapSymbol()[row][col] = '$';
-                        }
-                        else
-                        {
+                        } else {
                             map.getMapSymbol()[row][col] = 'X';
                         }
                         break;
                     case 'P':
-                        if(shipSymbol == 'T')
-                        {
+                        if (shipSymbol == 'T') {
                             map.getMapSymbol()[row][col] = '$';
-                        }
-                        else
-                        {
+                        } else {
                             map.getMapSymbol()[row][col] = 'X';
                         }
                         break;
                     case 'C':
-                        if(shipSymbol == 'B')
-                        {
+                        if (shipSymbol == 'B') {
                             map.getMapSymbol()[row][col] = '$';
-                        }
-                        else
-                        {
+                        } else {
                             map.getMapSymbol()[row][col] = 'X';
                         }
                         break;
@@ -1528,25 +1814,20 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 }
             }
         }
-        
+
         //does a monster occupy the same space as a ship?
         //if so destroy the ship(s)
-        if(arrayListMonster != null)
-        {
-            for(SeaMonster monster: arrayListMonster)
-            {
+        if (arrayListMonster != null) {
+            for (SeaMonster monster : arrayListMonster) {
                 row = monster.getPosition().getRow();
                 col = monster.getPosition().getColumn();
-                if(map.getMapSymbol()[row][col] == '$' || map.getMapSymbol()[row][col] == 'X' || map.getMapSymbol()[row][col] == 'S' || map.getMapSymbol()[row][col] == 'B' || map.getMapSymbol()[row][col] == 'T')
-                {
+                if (map.getMapSymbol()[row][col] == '$' || map.getMapSymbol()[row][col] == 'X' || map.getMapSymbol()[row][col] == 'S' || map.getMapSymbol()[row][col] == 'B' || map.getMapSymbol()[row][col] == 'T') {
                     //there is a ship in danger in the same spot as the monster
                     //destroy all ships at the monsters location
                     monster.battleCry();
-                    for(int i = 0; i < map.getArrayListShip().size(); i++)
-                    {
+                    for (int i = 0; i < map.getArrayListShip().size(); i++) {
                         CargoShip s = map.getArrayListShip().get(i);
-                        if(s.getPosition().getRow() == row && s.getPosition().getColumn() == col)
-                        {
+                        if (s.getPosition().getRow() == row && s.getPosition().getColumn() == col) {
                             map.getArrayListShip().remove(s);
                             i--;
                         }
@@ -1556,20 +1837,16 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 }
             }
         }
-        
-        if(godzillaExists)
-        {
+
+        if (godzillaExists) {
             row = godzilla.getPosition().getRow();
             col = godzilla.getPosition().getColumn();
             boolean battleCryed = false;
-            for(int i = 0; i < arrayListMonster.size(); i++)
-            {
+            for (int i = 0; i < arrayListMonster.size(); i++) {
                 SeaMonster monster = arrayListMonster.get(i);
-                if(!(monster instanceof Godzilla) && monster.getPosition().getRow() == row && monster.getPosition().getColumn() == col)
-                {
+                if (!(monster instanceof Godzilla) && monster.getPosition().getRow() == row && monster.getPosition().getColumn() == col) {
                     //destroy the monster
-                    if(!battleCryed)
-                    {
+                    if (!battleCryed) {
                         //only battlecry once, no matter how many monsters he eats at once
                         godzilla.battleCry();
                         battleCryed = true;
@@ -1832,8 +2109,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
     @Override
     public void paint(Graphics g) {
-        if(!closed)
-        {
+        if (!closed) {
             //combine ship, dock, and map data
             //and update images
             try {
@@ -1847,9 +2123,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             if (selectedTile != null) {
                 selectedTile.paint(g);
             }
-        }
-        else
-        {
+        } else {
             //don't mess with map data if map doesn't exist
             pane.moveToFront(backgroundLabel);
             super.paint(g);

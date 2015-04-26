@@ -29,6 +29,7 @@ public class CargoShip {
     protected Cargo cargo;
     protected char dockSymbol;
     protected Dock targetDock;
+    protected boolean targeted;
 
     private Scanner systemInput;
 
@@ -303,28 +304,28 @@ public class CargoShip {
      * @return the longitude
      */
     public double getLongitude() {
-        return this.position.getLongitude();
+        return this.getPosition().getLongitude();
     }
 
     /**
      * @param longitude the longitude to set
      */
     public void setLongitude(double longitude) {
-        this.position.setLongitude(longitude);
+        this.getPosition().setLongitude(longitude);
     }
 
     /**
      * @return the latitude
      */
     public double getLatitude() {
-        return this.position.getLatitude();
+        return this.getPosition().getLatitude();
     }
 
     /**
      * @param latitude the latitude to set
      */
     public void setLatitude(double latitude) {
-        this.position.setLatitude(latitude);
+        this.getPosition().setLatitude(latitude);
     }
     
     public Position getPosition()
@@ -377,5 +378,19 @@ public class CargoShip {
      */
     public void setTargetDock(Dock targetDock) {
         this.targetDock = targetDock;
+    }
+
+    /**
+     * @return the targeted
+     */
+    public boolean isTargeted() {
+        return targeted;
+    }
+
+    /**
+     * @param targeted the targeted to set
+     */
+    public void setTargeted(boolean targeted) {
+        this.targeted = targeted;
     }
 }
