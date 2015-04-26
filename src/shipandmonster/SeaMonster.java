@@ -18,7 +18,7 @@ public abstract class SeaMonster {
     protected Position targetPosition;
     protected boolean targeted;
     
-    abstract public void battleCry();    
+    abstract public String battleCry();    
     abstract public String displayMonster();
 
     /**

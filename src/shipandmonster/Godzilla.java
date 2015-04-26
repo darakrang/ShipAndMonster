@@ -5,6 +5,15 @@
  */
 package shipandmonster;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
+
 /**
  *
  * @author Dara
@@ -17,9 +26,25 @@ public class Godzilla extends SeaMonster {
         symbol = 'G';
     }
     
-    public void battleCry(){
-        //TO DO: occupies the same square as another sea monster
+    public String battleCry(){
         System.out.println("Baraaaawr-rompf!");
+        try
+        {
+            FileInputStream in = new FileInputStream("sounds/godzilla.wav");
+            // create an audiostream from the inputstream
+            AudioStream audioStream = new AudioStream(in);
+            // play the audio clip with the audioplayer class
+            AudioPlayer.player.start(audioStream);
+        }
+        catch (FileNotFoundException ex)
+        {
+            Logger.getLogger(Godzilla.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(Godzilla.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "Baraaaawr-rompf!";
     }
 
     @Override

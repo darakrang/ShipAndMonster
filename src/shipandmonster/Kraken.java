@@ -5,6 +5,14 @@
  */
 package shipandmonster;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
+
 /**
  *
  * @author Dara
@@ -17,9 +25,26 @@ public class Kraken extends SeaMonster {
         symbol = 'K';
     }
     
-    public void battleCry(){
+    public String battleCry(){
         //TO DO: occupies the same square as any ship
         System.out.println("RELEASE ME!");
+        try
+        {
+            FileInputStream in = new FileInputStream("sounds/kraken.wav");
+            // create an audiostream from the inputstream
+            AudioStream audioStream = new AudioStream(in);
+            // play the audio clip with the audioplayer class
+            AudioPlayer.player.start(audioStream);
+        }
+        catch (FileNotFoundException ex)
+        {
+            Logger.getLogger(Godzilla.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(Godzilla.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "RELEASE ME!";
     }
 
     @Override

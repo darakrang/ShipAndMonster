@@ -1027,7 +1027,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     Position newTargetPosition;
 
                     //now, update the map tiles to reflect the drag/drop change
-                    if (dropTile.getSymbol() != '*') {
+                    if (dropTile.getSymbol() != '*' || selectedTile.getSymbol() == 'G') {
                         //the ship / monster was moved to a tile of open water
                         //swap the tiles' symbols and return the dragged tile to it's original position
                         if (selectedShip != null) {
@@ -1824,8 +1824,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 if (map.getMapSymbol()[row][col] == '$' || map.getMapSymbol()[row][col] == 'X' || map.getMapSymbol()[row][col] == 'S' || map.getMapSymbol()[row][col] == 'B' || map.getMapSymbol()[row][col] == 'T') {
                     //there is a ship in danger in the same spot as the monster
                     //destroy all ships at the monsters location
-                    monster.battleCry();
-                    for (int i = 0; i < map.getArrayListShip().size(); i++) {
+                    statusTerminal.setText(monster.battleCry());
+                    for(int i = 0; i < map.getArrayListShip().size(); i++)
+                    {
                         CargoShip s = map.getArrayListShip().get(i);
                         if (s.getPosition().getRow() == row && s.getPosition().getColumn() == col) {
                             map.getArrayListShip().remove(s);
@@ -1848,7 +1849,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     //destroy the monster
                     if (!battleCryed) {
                         //only battlecry once, no matter how many monsters he eats at once
-                        godzilla.battleCry();
+                        statusTerminal.setText(godzilla.battleCry());
                         battleCryed = true;
                     }
                     arrayListMonster.remove(monster);
