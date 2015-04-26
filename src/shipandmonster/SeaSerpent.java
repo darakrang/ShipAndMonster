@@ -11,6 +11,12 @@ package shipandmonster;
  */
 public class SeaSerpent extends SeaMonster {
     
+    public SeaSerpent()
+    {
+        super();
+        symbol = 's';
+    }
+    
     public void battleCry(){
         //TO DO: occupies the same square as any ship
         System.out.println("Suddenly, you hear bagpipes!");

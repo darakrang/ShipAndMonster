@@ -11,6 +11,12 @@ package shipandmonster;
  */
 public class Kraken extends SeaMonster {
     
+    public Kraken()
+    {
+        super();
+        symbol = 'K';
+    }
+    
     public void battleCry(){
         //TO DO: occupies the same square as any ship
         System.out.println("RELEASE ME!");

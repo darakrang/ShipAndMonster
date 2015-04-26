@@ -14,6 +14,7 @@ public abstract class SeaMonster {
     protected Position position;
     protected String label;
     protected int currentCount;
+    protected char symbol;
     
     abstract public void battleCry();    
     abstract public String displayMonster();
@@ -44,5 +45,15 @@ public abstract class SeaMonster {
      */
     public void setLabel(String label) {
         this.label = label;
+    }
+    
+    public char getSymbol()
+    {
+        return this.symbol;
+    }
+    
+    public void setSymbol(char s)
+    {
+        this.symbol = s;
     }
 }

@@ -11,6 +11,12 @@ package shipandmonster;
  */
 public class Godzilla extends SeaMonster {
     
+    public Godzilla()
+    {
+        super();
+        symbol = 'G';
+    }
+    
     public void battleCry(){
         //TO DO: occupies the same square as another sea monster
         System.out.println("Baraaaawr-rompf!");

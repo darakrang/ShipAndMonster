@@ -11,6 +11,12 @@ package shipandmonster;
  */
 public class Leviathan extends SeaMonster {
     
+    public Leviathan()
+    {
+        super();
+        symbol = 'L';
+    }
+    
     public void battleCry(){
         //TO DO: occupies the same square as any ship
         System.out.println("Come! Ahab beckons!");

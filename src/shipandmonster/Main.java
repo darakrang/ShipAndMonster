@@ -116,6 +116,9 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private ArrayList<Dock> arrayListUnloadDock = new ArrayList<Dock>();
     private ArrayList<SeaMonster> arrayListMonster = new ArrayList<SeaMonster>();
     private Timer timer;
+    
+    private boolean godzillaExists;
+    private Godzilla godzilla;
 
     //Create the object
     public Main() {
@@ -140,6 +143,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         //initialize the GUI [Hunter]
         initializeGUI();
         selectedTile = null;
+        godzillaExists = false;
 
         //Initialize AI 
         runningAI = true;
@@ -252,6 +256,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     break;
                 case MenuLibrary.commandRemoveMonsters:
                     arrayListMonster.clear();
+                    godzillaExists = false;
                     break;
                 case MenuLibrary.commandSummonGodzilla:
                     generateGodzilla();
@@ -526,61 +531,70 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     }
 
     //gererate monsters and add it to map object
-    public void generateGodzilla() {
-        SeaMonster monster;
-        double longitude;
-        double latitude;
-        int col, row;
-        char symbol;
-        boolean flag = true;
-        Random random = new Random();
-        flag = true;
-        monster = new Godzilla();
-        while (flag) {
-            longitude = Main.randomDoubleInRange(-3.035000, -2.988478);
-            latitude = Main.randomDoubleInRange(53.396700, 53.457561);
-            col = MapConverter.lon2col(longitude);
-            row = MapConverter.lat2row(latitude);
+    public void generateGodzilla()
+    {
+        if(!godzillaExists)
+        {
+            double longitude;
+            double latitude;
+            int col, row;
+            char symbol;
+            boolean flag = true;
+            Random random = new Random();
+            godzilla = new Godzilla();
+            while (flag)
+            {
+                longitude = Main.randomDoubleInRange(-3.035000, -2.988478);
+                latitude = Main.randomDoubleInRange(53.396700, 53.457561);
+                col = MapConverter.lon2col(longitude);
+                row = MapConverter.lat2row(latitude);
 
-            // check: location of ship is out of map
-            if (row > 35 || col > 53) {
-                continue;
+                // check: location of ship is out of map
+                if (row > 35 || col > 53)
+                {
+                    continue;
+                }
+                symbol = map.getMapSymbol()[row][col];
+                switch (symbol) {
+                    case '.':
+                    case 'D':
+                        godzilla.setPosition(new Position());
+                        godzilla.getPosition().setLongitude(longitude);
+                        godzilla.getPosition().setLatitude(latitude);
+                        godzilla.getPosition().setRow(MapConverter.lon2col(longitude));
+                        godzilla.getPosition().setColumn(MapConverter.lat2row(latitude));
+                        flag = false;
+                        break;
+                    default:
+                        flag = true;
+                        break;
+                }
             }
-            symbol = map.getMapSymbol()[row][col];
-            switch (symbol) {
-                case '.':
-                case 'D':
-                    monster.setPosition(new Position());
-                    monster.getPosition().setLongitude(longitude);
-                    monster.getPosition().setLatitude(latitude);
-                    monster.getPosition().setRow(MapConverter.lon2col(longitude));
-                    monster.getPosition().setColumn(MapConverter.lat2row(latitude));
-                    flag = false;
-                    break;
-                default:
-                    flag = true;
-                    break;
+
+            // generate ship name        
+            int indexFirstName = random.nextInt(10);
+            int indexLastName = random.nextInt(10);
+            String firstNames[] = {"Red", "Green", "Dark", "Light", "Day", "Night", "Savanah", "Mountain", "Captain’s", "Admiral’s"};
+            String lastNames[] = {"Buffalo", "Pastures", "Knight", "Wave", "Star", "Moon", "Lion", "Goat", "Pride", "Joy"};
+            String firstName = firstNames[indexFirstName];
+            String lastName = lastNames[indexLastName];
+            godzilla.setLabel(firstName + " " + lastName);
+
+            //add to array list of map
+            for (SeaMonster godzilla : arrayListMonster) {
+                if (godzilla instanceof Godzilla) {
+                    arrayListMonster.remove(godzilla);
+                }
             }
+            arrayListMonster.add(godzilla);
+            godzillaExists = true;
+
+            this.repaint();
         }
-
-        // generate ship name        
-        int indexFirstName = random.nextInt(10);
-        int indexLastName = random.nextInt(10);
-        String firstNames[] = {"Red", "Green", "Dark", "Light", "Day", "Night", "Savanah", "Mountain", "Captain’s", "Admiral’s"};
-        String lastNames[] = {"Buffalo", "Pastures", "Knight", "Wave", "Star", "Moon", "Lion", "Goat", "Pride", "Joy"};
-        String firstName = firstNames[indexFirstName];
-        String lastName = lastNames[indexLastName];
-        monster.setLabel(firstName + " " + lastName);
-
-        //add to array list of map
-        for (SeaMonster godzilla : arrayListMonster) {
-            if (godzilla instanceof Godzilla) {
-                arrayListMonster.remove(godzilla);
-            }
+        else
+        {
+            statusTerminal.setText("Godzilla already exists.");
         }
-        arrayListMonster.add(monster);
-
-        this.repaint();
     }
 
     public void getArrayListUnloadShipsAndDock(ArrayList<Dock> arrayListDock, ArrayList<CargoShip> arrayListShip) {
@@ -769,7 +783,6 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 selectedShip = null;
                 selectedMonster = null;
 
-                updateAI();
                 this.repaint();
             }
         }
@@ -1342,8 +1355,8 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             if (ship.getCargo() == null) {
                 continue;
             }
-            row = MapConverter.lat2row(ship.getLatitude());
-            col = MapConverter.lon2col(ship.getLongitude());
+            row = ship.getPosition().getRow();
+            col = ship.getPosition().getColumn();
             if (map.getMapSymbol()[row][col] == '$'
                     || map.getMapSymbol()[row][col] == 'S'
                     || map.getMapSymbol()[row][col] == 'T'
@@ -1352,7 +1365,49 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
             } else if (map.getMapSymbol()[row][col] == 'D'
                     || map.getMapSymbol()[row][col] == 'P'
                     || map.getMapSymbol()[row][col] == 'C') {
-                map.getMapSymbol()[row][col] = '$';
+                //check for the correct/matching dock type
+                char shipSymbol = 'S';
+                if(ship instanceof OilTanker)
+                {
+                    shipSymbol = 'T';
+                }
+                else if(ship instanceof ContainerShip)
+                {
+                    shipSymbol = 'B';
+                }
+                switch(map.getMapSymbol()[row][col])
+                {
+                    case 'D':
+                        if(shipSymbol == 'S')
+                        {
+                            map.getMapSymbol()[row][col] = '$';
+                        }
+                        else
+                        {
+                            map.getMapSymbol()[row][col] = 'X';
+                        }
+                        break;
+                    case 'P':
+                        if(shipSymbol == 'T')
+                        {
+                            map.getMapSymbol()[row][col] = '$';
+                        }
+                        else
+                        {
+                            map.getMapSymbol()[row][col] = 'X';
+                        }
+                        break;
+                    case 'C':
+                        if(shipSymbol == 'B')
+                        {
+                            map.getMapSymbol()[row][col] = '$';
+                        }
+                        else
+                        {
+                            map.getMapSymbol()[row][col] = 'X';
+                        }
+                        break;
+                }
             } else {
                 if (ship instanceof ContainerShip) {
                     map.getMapSymbol()[row][col] = 'B';
@@ -1397,6 +1452,56 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     map.getMapSymbol()[row][col] = 'X';
                     startIndex = index + 1;
                     break;
+                }
+            }
+        }
+        
+        //does a monster occupy the same space as a ship?
+        //if so destroy the ship(s)
+        for(SeaMonster monster: arrayListMonster)
+        {
+            row = monster.getPosition().getRow();
+            col = monster.getPosition().getColumn();
+            if(map.getMapSymbol()[row][col] == '$' || map.getMapSymbol()[row][col] == 'X' || map.getMapSymbol()[row][col] == 'S' || map.getMapSymbol()[row][col] == 'B' || map.getMapSymbol()[row][col] == 'T')
+            {
+                //there is a ship in danger in the same spot as the monster
+                //destroy all ships at the monsters location
+                monster.battleCry();
+                for(int i = 0; i < map.getArrayListShip().size(); i++)
+                {
+                    CargoShip s = map.getArrayListShip().get(i);
+                    if(s.getPosition().getRow() == row && s.getPosition().getColumn() == col)
+                    {
+                        map.getArrayListShip().remove(s);
+                        i--;
+                    }
+                }
+                map.getMapSymbol()[row][col] = monster.getSymbol();
+                bufferMap[col][row].setTargetPosition(null);
+            }
+        }
+        
+        if(godzillaExists)
+        {
+            row = godzilla.getPosition().getRow();
+            col = godzilla.getPosition().getColumn();
+            boolean battleCryed = false;
+            for(int i = 0; i < arrayListMonster.size(); i++)
+            {
+                SeaMonster monster = arrayListMonster.get(i);
+                if(!(monster instanceof Godzilla) && monster.getPosition().getRow() == row && monster.getPosition().getColumn() == col)
+                {
+                    //destroy the monster
+                    if(!battleCryed)
+                    {
+                        //only battlecry once, no matter how many monsters he eats at once
+                        godzilla.battleCry();
+                        battleCryed = true;
+                    }
+                    arrayListMonster.remove(monster);
+                    i--;
+                    map.getMapSymbol()[row][col] = 'G';
+                    bufferMap[col][row].setTargetPosition(null);
                 }
             }
         }
@@ -1671,9 +1776,5 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
          g.drawImage(bufferMap[col][row], MenuLibrary.ICON_SIZE*col + MenuLibrary.MAP_ORIGIN_X, MenuLibrary.ICON_SIZE*row + MenuLibrary.MAP_ORIGIN_Y, this);
          }
          }*/
-    }
-
-    public void updateAI() {
-
     }
 }
