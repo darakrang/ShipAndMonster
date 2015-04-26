@@ -78,6 +78,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     private JScrollPane stScrollPane;
     private JButton button1, button2, button3;
     private JLabel backgroundLabel;
+    private boolean closed;
 
     //private JLabel[][] geoMap; //a background / geographical map including sea, land, and docks
     private MapTile[][] bufferMap; //the full map including ships & monsters
@@ -148,6 +149,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         //Initialize AI 
         runningAI = true;
         timer = new Timer(1000, this);
+        closed = false;
     }
 
     /**
@@ -263,10 +265,19 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     break;
                 //JButtons
                 case MenuLibrary.commandStart: {
-                    try {
-                        startAI(true);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    //only start the threading if ships exist to go to docks, or if monsters & ships exist, or if godzilla and monsters exist
+                    //otherwise there is nothing to target
+                    if(!map.getArrayListShip().isEmpty() || (!arrayListMonster.isEmpty() && godzillaExists))
+                    {
+                        try {
+                            startAI(true);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    else
+                    {
+                        statusTerminal.setText("There are no ships or monsters on the map.");
                     }
                 }
                 break;
@@ -275,6 +286,37 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     break;
                 case MenuLibrary.command3D:
                     break;
+                case MenuLibrary.commandOpen:
+                    String filename = JOptionPane.showInputDialog(null, "Type in the filename:", "Open Fileset", JOptionPane.INFORMATION_MESSAGE);
+                    char readInPort = ' ';
+                    do
+                    {
+                        readInPort = JOptionPane.showInputDialog(null, "Is there a port file to read in?\n(Enter 'y' for yes and 'n' for no)", "Open Fileset", JOptionPane.INFORMATION_MESSAGE).charAt(0);
+                        if(readInPort != 'Y' && readInPort != 'y' && readInPort != 'N' && readInPort != 'n')
+                        {
+                            JOptionPane.showMessageDialog(null, "Only enter 'y' for yes or 'n' for no! Try again.");
+                        }
+                    }while(readInPort != 'Y' && readInPort != 'y' && readInPort != 'N' && readInPort != 'n');
+                    if(readInPort != 'Y' && readInPort != 'y')
+                    {
+                        map = new Map(filename, true);
+                    }
+                    else
+                    {
+                        map = new Map(filename);
+                    }
+                    pane.moveToBack(backgroundLabel);
+                    closed = false;
+                    break;
+                case MenuLibrary.commandClose:
+                    pane.moveToFront(backgroundLabel);
+                    closed = true;
+                    arrayListMonster.clear();
+                    selectedTile = null;
+                    godzillaExists = false;
+                    break;
+                case MenuLibrary.commandSnapshot:
+                    break;
             }
         }
 
@@ -282,7 +324,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
     }
 
     public void startAI(boolean running) throws InterruptedException {
-        int delay = 1000;// wait for a second
+        int delay = 500;// wait for a half-second
 
         timer = new Timer(delay, new AbstractAction() {
             @Override
@@ -446,6 +488,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                     bufferMap[newCol][newRow].setSymbol(oldSymbol);
                     ship.getPosition().setColumn(newCol);
                     ship.getPosition().setRow(newRow);
+                    repaint();
                 }
             }
         });
@@ -1336,17 +1379,20 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         }
 
         // combine monster and map
-        for (SeaMonster monster : arrayListMonster) {
-            row = monster.getPosition().getRow();
-            col = monster.getPosition().getColumn();
-            if (monster instanceof Kraken) {
-                map.getMapSymbol()[row][col] = 'K';
-            } else if (monster instanceof Leviathan) {
-                map.getMapSymbol()[row][col] = 'L';
-            } else if (monster instanceof SeaSerpent) {
-                map.getMapSymbol()[row][col] = 's';
-            } else {
-                map.getMapSymbol()[row][col] = 'G';
+        if(arrayListMonster != null)
+        {
+            for (SeaMonster monster : arrayListMonster) {
+                row = monster.getPosition().getRow();
+                col = monster.getPosition().getColumn();
+                if (monster instanceof Kraken) {
+                    map.getMapSymbol()[row][col] = 'K';
+                } else if (monster instanceof Leviathan) {
+                    map.getMapSymbol()[row][col] = 'L';
+                } else if (monster instanceof SeaSerpent) {
+                    map.getMapSymbol()[row][col] = 's';
+                } else {
+                    map.getMapSymbol()[row][col] = 'G';
+                }
             }
         }
 
@@ -1458,26 +1504,29 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
         
         //does a monster occupy the same space as a ship?
         //if so destroy the ship(s)
-        for(SeaMonster monster: arrayListMonster)
+        if(arrayListMonster != null)
         {
-            row = monster.getPosition().getRow();
-            col = monster.getPosition().getColumn();
-            if(map.getMapSymbol()[row][col] == '$' || map.getMapSymbol()[row][col] == 'X' || map.getMapSymbol()[row][col] == 'S' || map.getMapSymbol()[row][col] == 'B' || map.getMapSymbol()[row][col] == 'T')
+            for(SeaMonster monster: arrayListMonster)
             {
-                //there is a ship in danger in the same spot as the monster
-                //destroy all ships at the monsters location
-                monster.battleCry();
-                for(int i = 0; i < map.getArrayListShip().size(); i++)
+                row = monster.getPosition().getRow();
+                col = monster.getPosition().getColumn();
+                if(map.getMapSymbol()[row][col] == '$' || map.getMapSymbol()[row][col] == 'X' || map.getMapSymbol()[row][col] == 'S' || map.getMapSymbol()[row][col] == 'B' || map.getMapSymbol()[row][col] == 'T')
                 {
-                    CargoShip s = map.getArrayListShip().get(i);
-                    if(s.getPosition().getRow() == row && s.getPosition().getColumn() == col)
+                    //there is a ship in danger in the same spot as the monster
+                    //destroy all ships at the monsters location
+                    monster.battleCry();
+                    for(int i = 0; i < map.getArrayListShip().size(); i++)
                     {
-                        map.getArrayListShip().remove(s);
-                        i--;
+                        CargoShip s = map.getArrayListShip().get(i);
+                        if(s.getPosition().getRow() == row && s.getPosition().getColumn() == col)
+                        {
+                            map.getArrayListShip().remove(s);
+                            i--;
+                        }
                     }
+                    map.getMapSymbol()[row][col] = monster.getSymbol();
+                    bufferMap[col][row].setTargetPosition(null);
                 }
-                map.getMapSymbol()[row][col] = monster.getSymbol();
-                bufferMap[col][row].setTargetPosition(null);
             }
         }
         
@@ -1756,25 +1805,27 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
 
     @Override
     public void paint(Graphics g) {
-        //combine ship, dock, and map data
-        //and update images
-        try {
-            refreshMapData();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        if(!closed)
+        {
+            //combine ship, dock, and map data
+            //and update images
+            try {
+                refreshMapData();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            super.paint(g);
+
+            if (selectedTile != null) {
+                selectedTile.paint(g);
+            }
         }
-
-        super.paint(g);
-
-        if (selectedTile != null) {
-            selectedTile.paint(g);
+        else
+        {
+            //don't mess with map data if map doesn't exist
+            pane.moveToFront(backgroundLabel);
+            super.paint(g);
         }
-
-        /*print map
-         for (int row = 0; row < 36; row++) {
-         for (int col = 0; col < 54; col++) {
-         g.drawImage(bufferMap[col][row], MenuLibrary.ICON_SIZE*col + MenuLibrary.MAP_ORIGIN_X, MenuLibrary.ICON_SIZE*row + MenuLibrary.MAP_ORIGIN_Y, this);
-         }
-         }*/
     }
 }

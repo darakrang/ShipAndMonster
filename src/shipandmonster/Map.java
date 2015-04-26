@@ -49,6 +49,39 @@ public class Map {
             System.out.println("the complex.map.txt file is missing!");
         }
     }
+    
+    public Map(String filename)
+    {
+        systemInput = new Scanner(System.in);
+        arrayListShip = new ArrayList<CargoShip>();
+        arrayTypeShip = new ArrayList<CargoShip>();
+        fileHandler = new FileHandler();
+        mapSymbol = new char[36][54];
+        try {
+            mapSymbol = fileHandler.readMapFile(filename + ".map.txt");
+        } catch (FileNotFoundException ex) {
+            System.out.println("the " + filename + " fileset is missing!");
+        }
+    }
+    
+    public Map(String filename, boolean readInPort)
+    {
+        systemInput = new Scanner(System.in);
+        arrayListShip = new ArrayList<CargoShip>();
+        arrayTypeShip = new ArrayList<CargoShip>();
+        fileHandler = new FileHandler();
+        mapSymbol = new char[36][54];
+        try {
+            mapSymbol = fileHandler.readMapFile(filename + ".map.txt");
+            if(readInPort)
+            {
+                port = new Port();
+                fileHandler.readPortFile(filename, port);
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("the " + filename + " fileset is missing!");
+        }
+    }
 
     //gererate ships and add it to map object
     public void generateShip(int shipNumber, ArrayList<Dock> arrayListDock) {
