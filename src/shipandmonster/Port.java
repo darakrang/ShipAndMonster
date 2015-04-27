@@ -26,7 +26,7 @@ public class Port {
         arrayListDock = new ArrayList<Dock>();
         arrayListCargo = new ArrayList<Cargo>();
         fileHandler = new FileHandler();
-        
+
         try {
             fileHandler.readPortFile("complex.port.txt", this.name, arrayListDock, arrayListCargo);
         } catch (FileNotFoundException ex) {
@@ -48,7 +48,7 @@ public class Port {
             System.out.print("::>");
         }
     }
-    
+
     //display all Ship data
     public void displayDocks() {
         if (arrayListDock.size() == 0) {
@@ -128,7 +128,22 @@ public class Port {
     @Override
     public String toString() {
         String string = "";
-        string = this.name + "," + this.getArrayListDock().size() + "," + this.getArrayListCargo().size();
+
+        ArrayList<Dock> arrayListDock = new ArrayList<Dock>();
+        ArrayList<Dock> arrayListCrane = new ArrayList<Dock>();
+        ArrayList<Dock> arrayListPier = new ArrayList<Dock>();
+
+        for (Dock dock : getArrayListDock()) {
+            if (dock instanceof Crane) {
+                arrayListCrane.add(dock);
+            } else if (dock instanceof Pier) {
+                arrayListPier.add(dock);
+            } else {
+                arrayListDock.add(dock);
+            }
+        }
+
+        string = this.name + "," + arrayListDock.size() + "," + arrayListCrane.size() + "," + arrayListPier.size() + "," + this.getArrayListCargo().size();
         return string;
     }
 

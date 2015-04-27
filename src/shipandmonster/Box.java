@@ -25,7 +25,7 @@ public class Box extends Cargo{
         //This is the Constructor        
         String[] token = dataLine.split(",");            
         this.description = token[0];
-        this.teus = Integer.parseInt(token[1]);  
+        this.teus = Integer.valueOf(token[1]);  
     }
     
     //generate data to one string line

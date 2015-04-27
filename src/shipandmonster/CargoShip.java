@@ -29,6 +29,7 @@ public class CargoShip {
     protected Cargo cargo;
     protected char dockSymbol;
     protected Dock targetDock;
+    protected boolean targeted;
 
     private Scanner systemInput;
 
@@ -377,5 +378,19 @@ public class CargoShip {
      */
     public void setTargetDock(Dock targetDock) {
         this.targetDock = targetDock;
+    }
+
+    /**
+     * @return the targeted
+     */
+    public boolean isTargeted() {
+        return targeted;
+    }
+
+    /**
+     * @param targeted the targeted to set
+     */
+    public void setTargeted(boolean targeted) {
+        this.targeted = targeted;
     }
 }

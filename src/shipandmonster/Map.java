@@ -91,9 +91,6 @@ public class Map {
         int col, row, colDock, rowDock, counter;
         char symbol;
         ArrayList<Dock> arrayListTargetDock = new ArrayList<Dock>();
-        ArrayList<Dock> arrayListTargetPier = new ArrayList<Dock>();
-        ArrayList<Dock> arrayListTargetCrane = new ArrayList<Dock>();
-        ArrayList<Dock> tempArrayListTargetDock = new ArrayList<Dock>();
         boolean flag = true;
         Random random = new Random();
 
@@ -112,7 +109,7 @@ public class Map {
             } else if (arrayTypeShip.get(indexShip) instanceof ContainerShip) {
                 ship = new ContainerShip();
             } else {
-                ship = new CargoShip();
+            ship = new CargoShip();
             }
              //find the all right target dock
             if (!(arrayListTargetDock.isEmpty())) {
@@ -146,9 +143,8 @@ public class Map {
                 symbol = mapSymbol[row][col];
                 switch (symbol) {
                     case water:
-                    case emptyDock:
-                        ship.setLongitude(longitude);
-                        ship.setLatitude(latitude);
+                    case emptyDock: 
+                        ship.setPosition(new Position(col,row));
                         flag = false;
                         break;
                     default:

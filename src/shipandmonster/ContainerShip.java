@@ -46,7 +46,7 @@ public class ContainerShip extends CargoShip{
         this.position.setLongitude(Double.parseDouble(token[7]));
         this.position.setLatitude(Double.parseDouble(token[8]));
         if (token.length > 9) {
-            this.cargo = new Cargo(token[9] + "," + token[10]);
+            this.cargo = new Box(token[9] + "," + token[10]);
         }
     }
 
@@ -83,6 +83,17 @@ public class ContainerShip extends CargoShip{
      */
     public void setCargo(Box cargo) {
         this.cargo = cargo;
+    }
+    
+    //generate data to one string line
+    public String toString() {
+        String string = "";
+        if (this.getCargo() != null) {
+            string = this.getName() + "," + this.getCountry() + "," + this.getTransponder() + "," + this.getCargoCapacity() + "," + this.getLength() + "," + this.getBeam() + "," + this.getDraft() + "," + this.getLongitude() + "," + this.getLatitude() + "," + this.getCargo().getDescription() + "," + this.getCargo().getTeus();
+        } else {
+            string = this.getName() + "," + this.getCountry() + "," + this.getTransponder() + "," + this.getCargoCapacity() + "," + this.getLength() + "," + this.getBeam() + "," + this.getDraft() + "," + this.getLongitude() + "," + this.getLatitude();
+        }
+        return string;
     }
 
 }

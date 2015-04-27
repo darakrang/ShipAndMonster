@@ -25,6 +25,10 @@ public class SeaSerpent extends SeaMonster {
         symbol = 's';
     }
     
+    public SeaSerpent(String dataLine) {
+        super(dataLine);
+    }
+    
     public String battleCry(){
         //TO DO: occupies the same square as any ship
         System.out.println("Suddenly, you hear bagpipes!");

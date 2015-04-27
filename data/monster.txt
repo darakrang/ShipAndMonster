@@ -1,0 +1,7 @@
+1,3,1,1
+Mountain Buffalo,19,23
+Night Star,43,0
+Admiral’s Buffalo,6,23
+Red Knight,28,12
+Mountain Lion,11,35
+Admiral’s Moon,38,3

@@ -25,6 +25,10 @@ public class Leviathan extends SeaMonster {
         symbol = 'L';
     }
     
+    public Leviathan(String dataLine) {
+        super(dataLine);
+    }
+    
     public String battleCry(){
         //TO DO: occupies the same square as any ship
         System.out.println("Come! Ahab beckons!");

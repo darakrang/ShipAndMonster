@@ -26,6 +26,10 @@ public class Godzilla extends SeaMonster {
         symbol = 'G';
     }
     
+    public Godzilla(String dataLine) {
+        super(dataLine);
+    }
+    @Override
     public String battleCry(){
         System.out.println("Baraaaawr-rompf!");
         try
