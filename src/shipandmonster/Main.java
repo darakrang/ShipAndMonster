@@ -1979,7 +1979,7 @@ public class Main extends JFrame implements ActionListener, MouseListener, Mouse
                 if (map.getMapSymbol()[row][col] == '$' || map.getMapSymbol()[row][col] == 'X' || map.getMapSymbol()[row][col] == 'S' || map.getMapSymbol()[row][col] == 'B' || map.getMapSymbol()[row][col] == 'T') {
                     //there is a ship in danger in the same spot as the monster
                     //destroy all ships at the monsters location
-                    monster.battleCry();
+                    statusTerminal.setText(monster.battleCry());
                     for (int i = 0; i < map.getArrayListShip().size(); i++) {
                         CargoShip s = map.getArrayListShip().get(i);
                         if (s.getPosition().getRow() == row && s.getPosition().getColumn() == col) {
